@@ -1,0 +1,38 @@
+/* src/app/landing.css */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-12px); }
+}
+@keyframes floatSlow {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50%       { transform: translateY(-18px) rotate(3deg); }
+}
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.5; }
+  50%       { opacity: 1; }
+}
+@keyframes scan-line {
+  0%   { transform: translateY(-100%); }
+  100% { transform: translateY(400%); }
+}
+@keyframes ticker {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+.float-1 { animation: float 4s ease-in-out infinite; }
+.float-2 { animation: floatSlow 6s ease-in-out infinite; animation-delay: 1s; }
+.float-3 { animation: float 5s ease-in-out infinite; animation-delay: 2s; }
+.pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
+.scan-line { animation: scan-line 3s linear infinite; }
+.ticker-wrap { overflow: hidden; white-space: nowrap; }
+.ticker { display: inline-block; animation: ticker 20s linear infinite; }
+.cursor-blink { animation: blink 1s step-end infinite; }

@@ -1,0 +1,263 @@
+/* src/app/globals.css */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* ── Premium Enterprise Dark Theme ── */
+    --bg-page:        #070B14;
+    --bg-primary:     rgba(17, 24, 39, 0.4);
+    --bg-secondary:   #0B1020;
+    --bg-tertiary:    #111827;
+    
+    --text-primary:   #f8fafc;
+    --text-secondary: #cbd5e1;
+    --text-muted:     #64748b;
+    
+    --border:         rgba(255, 255, 255, 0.05);
+    --border-hover:   rgba(255, 255, 255, 0.12);
+
+    /* ── Brand Indigo/Violet ── */
+    --brand:          #6366f1;
+    --brand-hover:    #7c3aed;
+    --brand-light:    rgba(99, 102, 241, 0.12);
+    --brand-medium:   rgba(99, 102, 241, 0.25);
+
+    /* ── Muted Semantic Colors ── */
+    --success:        #10b981;
+    --success-light:  rgba(16, 185, 129, 0.1);
+    --warning:        #f59e0b;
+    --warning-light:  rgba(245, 158, 11, 0.1);
+    --danger:         #fb7185;
+    --danger-light:   rgba(251, 113, 133, 0.08);
+
+    /* ── Sidebar ── */
+    --sidebar-bg:     #070B14;
+    --sidebar-width:  72px;
+
+    /* ── Shadows ── */
+    --shadow-sm:   0 2px 8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.02);
+    --shadow-md:   0 8px 24px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);
+    --shadow-lg:   0 16px 48px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05);
+  }
+
+  * {
+    box-sizing: border-box;
+    border-color: var(--border);
+  }
+
+  html {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    background-color: var(--bg-page);
+  }
+
+  body {
+    background-color: var(--bg-page);
+    color: var(--text-primary);
+    font-size: 14px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* Global background texture to make it look premium everywhere */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: 
+      linear-gradient(to right, rgba(255,255,255,0.02) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size: 64px 64px;
+    pointer-events: none;
+    z-index: -2;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.08) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  ::selection {
+    background: rgba(99, 102, 241, 0.2);
+  }
+
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 8px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+  h1, h2, h3, h4, h5 {
+    color: var(--text-primary);
+    font-weight: 600;
+    letter-spacing: -0.03em;
+  }
+}
+
+@layer components {
+  /* ────────────────────────────────
+     Layout Primitives
+  ──────────────────────────────── */
+  .app-layout {
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ────────────────────────────────
+     Sidebar
+  ──────────────────────────────── */
+  .sidebar {
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    width: var(--sidebar-width);
+    background: rgba(7, 11, 20, 0.8);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 0;
+    z-index: 50;
+  }
+
+  .sidebar-link {
+    @apply flex items-center justify-center w-12 h-12 rounded-2xl transition-all duration-300 text-[var(--text-muted)] hover:bg-[var(--bg-secondary)] hover:text-[var(--text-primary)] hover:scale-105;
+  }
+
+  .sidebar-link.active {
+    background: var(--brand-light);
+    color: var(--brand);
+    border: 1px solid var(--brand-medium);
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.15);
+  }
+
+  /* ────────────────────────────────
+     Main Content
+  ──────────────────────────────── */
+  .main-content {
+    margin-left: var(--sidebar-width);
+    flex: 1;
+    min-height: 100vh;
+  }
+
+  .page-container {
+    @apply max-w-7xl mx-auto px-6 py-8 md:px-10 md:py-10;
+  }
+
+  /* ────────────────────────────────
+     Cards (Premium Glassmorphism)
+  ──────────────────────────────── */
+  .card {
+    background: var(--bg-primary);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border-radius: 24px;
+    border: 1px solid var(--border);
+    padding: 32px;
+    box-shadow: var(--shadow-sm);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card-hover {
+    @apply card transition-all duration-300;
+  }
+  
+  .card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: rgba(255,255,255,0.1);
+  }
+
+  .card-sm {
+    @apply card;
+    padding: 20px;
+    border-radius: 20px;
+  }
+
+  /* ────────────────────────────────
+     Buttons
+  ──────────────────────────────── */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed;
+    background: linear-gradient(135deg, var(--brand), var(--brand-hover));
+    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4), inset 0 1px 0 rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .btn-primary:hover:not(:disabled) {
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6), inset 0 1px 0 rgba(255,255,255,0.2);
+    transform: translateY(-1px);
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 disabled:opacity-50;
+    background: rgba(255,255,255,0.03);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+    backdrop-filter: blur(12px);
+  }
+  .btn-secondary:hover:not(:disabled) {
+    border-color: rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.06);
+    transform: translateY(-1px);
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200;
+    color: var(--text-muted);
+  }
+  .btn-ghost:hover { background: rgba(255,255,255,0.05); color: var(--text-primary); }
+
+  /* ────────────────────────────────
+     Inputs
+  ──────────────────────────────── */
+  .input {
+    @apply w-full rounded-xl px-4 py-3 text-sm transition-all duration-200 outline-none;
+    background: rgba(11, 16, 32, 0.6);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+  }
+  .input::placeholder { color: var(--text-muted); font-weight: 300; }
+  .input:focus {
+    border-color: var(--brand);
+    background: rgba(17, 24, 39, 0.8);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  }
+
+  /* ────────────────────────────────
+     Badges (Semantic Muted)
+  ──────────────────────────────── */
+  .badge {
+    @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] uppercase tracking-widest font-semibold border;
+  }
+  .badge-brand  { background: var(--brand-light); color: var(--brand); border-color: var(--brand-medium); }
+  .badge-green  { background: var(--success-light); color: var(--success); border-color: rgba(16,185,129,0.2); }
+  .badge-orange { background: var(--warning-light); color: var(--warning); border-color: rgba(245,158,11,0.2); }
+  .badge-red    { background: var(--danger-light); color: var(--danger); border-color: rgba(251,113,133,0.15); }
+  .badge-gray   { background: rgba(255,255,255,0.03); color: var(--text-secondary); border-color: var(--border); }
+
+  /* ────────────────────────────────
+     Page Header
+  ──────────────────────────────── */
+  .page-header {
+    @apply flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10;
+  }
+  .page-title {
+    @apply text-3xl font-bold tracking-tight mb-2;
+    color: var(--text-primary);
+  }
+  .page-subtitle {
+    @apply text-base font-light;
+    color: var(--text-muted);
+  }
+}
+
+/* Recharts overrides to remove white backgrounds in dark mode tooltips */
+.recharts-tooltip-wrapper { outline: none; }

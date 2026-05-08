@@ -1,0 +1,357 @@
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  image         String?
+  passwordHash  String?
+  role          Role      @default(USER)
+  plan          Plan      @default(FREE)
+  status        UserStatus @default(ACTIVE)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  profile       Profile?
+  sessions      InterviewSession[]
+  resumes       Resume[]
+  analytics     Analytics?
+  subscription  Subscription?
+  payments      Payment[]
+  adminLogs     AdminLog[]
+  notifications Notification[]
+
+  emailVerified DateTime?
+  accounts      Account[]
+  authSessions  Session[]
+
+  @@map("users")
+}
+
+model Account {
+  id                 String  @id @default(cuid())
+  userId             String
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String?  @db.Text
+  access_token       String?  @db.Text
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String?  @db.Text
+  session_state      String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+enum Role {
+  USER
+  ADMIN
+  MODERATOR
+}
+
+enum Plan {
+  FREE
+  PRO
+  ENTERPRISE
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  BANNED
+}
+
+model Profile {
+  id              String    @id @default(cuid())
+  userId          String    @unique
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bio             String?
+  targetRole      String?
+  experience      String?   // fresher, 1-2yrs, 3-5yrs, 5+yrs
+  preferredStack  String[]
+  linkedinUrl     String?
+  githubUrl       String?
+  totalSessions   Int       @default(0)
+  avgScore        Float     @default(0)
+  streakDays      Int       @default(0)
+  lastActiveAt    DateTime?
+
+  @@map("profiles")
+}
+
+model Resume {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fileName    String
+  fileUrl     String
+  parsedData  Json?     // extracted skills, projects, experience
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+
+  sessions    InterviewSession[]
+
+  @@map("resumes")
+}
+
+model InterviewSession {
+  id              String          @id @default(cuid())
+  userId          String
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  resumeId        String?
+  resume          Resume?         @relation(fields: [resumeId], references: [id])
+
+  type            InterviewType
+  domain          InterviewDomain
+  difficulty      Difficulty
+  company         String?         // Google, Amazon, etc.
+  duration        Int?            // in minutes
+  status          SessionStatus   @default(PENDING)
+
+  messages        Message[]
+  evaluation      Evaluation?
+  codeSubmissions CodeSubmission[]
+  proctoringLogs  ProctoringLog[]
+
+  startedAt       DateTime?
+  completedAt     DateTime?
+  createdAt       DateTime        @default(now())
+
+  // Proctoring metrics
+  integrityScore  Float?          @default(100.0)
+  warningCount    Int             @default(0)
+
+  @@map("interview_sessions")
+}
+
+enum InterviewType {
+  TECHNICAL
+  BEHAVIORAL
+  MIXED
+  CODING
+}
+
+enum InterviewDomain {
+  DSA
+  SYSTEM_DESIGN
+  OS
+  DBMS
+  CN
+  HR_BEHAVIORAL
+  FULL_STACK
+  FRONTEND
+  BACKEND
+  MACHINE_LEARNING
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum SessionStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  ABANDONED
+}
+
+model Message {
+  id          String    @id @default(cuid())
+  sessionId   String
+  session     InterviewSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  role        MessageRole
+  content     String    @db.Text
+  audioUrl    String?
+  timestamp   DateTime  @default(now())
+  metadata    Json?     // filler words, hesitation data, etc.
+
+  @@map("messages")
+}
+
+enum MessageRole {
+  INTERVIEWER
+  CANDIDATE
+  SYSTEM
+}
+
+model Evaluation {
+  id              String    @id @default(cuid())
+  sessionId       String    @unique
+  session         InterviewSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  overallScore    Float
+  technicalScore  Float?
+  communicationScore Float?
+  confidenceScore Float?
+  clarityScore    Float?
+
+  strengths       String[]
+  weaknesses      String[]
+  improvements    String[]
+  summary         String    @db.Text
+  detailedReport  Json?     // per-question analysis
+
+  aiTokensUsed    Int?      @default(0)
+  aiLatencyMs     Int?      @default(0)
+  aiFlagged       Boolean   @default(false)
+
+  createdAt       DateTime  @default(now())
+
+  @@map("evaluations")
+}
+
+model CodeSubmission {
+  id          String    @id @default(cuid())
+  sessionId   String
+  session     InterviewSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  language    String
+  code        String    @db.Text
+  problem     String    @db.Text
+  testResults Json?
+  analysis    Json?     // complexity, quality, edge cases
+  score       Float?
+  createdAt   DateTime  @default(now())
+
+  @@map("code_submissions")
+}
+
+model Analytics {
+  id              String    @id @default(cuid())
+  userId          String    @unique
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  totalSessions   Int       @default(0)
+  completedSessions Int     @default(0)
+  avgOverallScore Float     @default(0)
+  avgTechnicalScore Float   @default(0)
+  avgCommunicationScore Float @default(0)
+  scoreHistory    Json?     // [{date, score}]
+  domainScores    Json?     // {DSA: 75, SystemDesign: 60, ...}
+  weeklyActivity  Json?     // heatmap data
+  topStrengths    String[]
+  topWeaknesses   String[]
+  updatedAt       DateTime  @updatedAt
+
+  @@map("analytics")
+}
+
+model Question {
+  id          String    @id @default(cuid())
+  domain      InterviewDomain
+  difficulty  Difficulty
+  type        String    // conceptual, coding, behavioral, design
+  question    String    @db.Text
+  idealAnswer String?   @db.Text
+  tags        String[]
+  company     String?
+  upvotes     Int       @default(0)
+
+  @@map("questions")
+}
+
+model Subscription {
+  id              String    @id @default(cuid())
+  userId          String    @unique
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stripeId        String?
+  status          String    @default("active") // active, canceled, past_due
+  currentPeriodEnd DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@map("subscriptions")
+}
+
+model Payment {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount      Float
+  currency    String    @default("USD")
+  status      String    // succeeded, failed
+  stripeId    String?
+  createdAt   DateTime  @default(now())
+
+  @@map("payments")
+}
+
+model AdminLog {
+  id          String    @id @default(cuid())
+  adminId     String
+  admin       User      @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  action      String    // SUSPEND_USER, CHANGE_AI_PROMPT, etc.
+  details     Json?
+  targetId    String?   // The ID of the user/entity affected
+  ipAddress   String?
+  createdAt   DateTime  @default(now())
+
+  @@map("admin_logs")
+}
+
+model Notification {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type        String    // ALERT, INFO, BILLING
+  title       String
+  message     String    @db.Text
+  read        Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+
+  @@map("notifications")
+}
+
+model ProctoringLog {
+  id          String           @id @default(cuid())
+  sessionId   String
+  session     InterviewSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  
+  eventType   ProctoringEventType
+  description String?
+  screenshot  String?          // URL or base64 of the stored screenshot
+  timestamp   DateTime         @default(now())
+
+  @@map("proctoring_logs")
+}
+
+enum ProctoringEventType {
+  TAB_SWITCH
+  LOOK_AWAY
+  MULTIPLE_FACES
+  NO_FACE
+  PHONE_DETECTED
+}
