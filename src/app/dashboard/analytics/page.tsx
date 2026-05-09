@@ -31,7 +31,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
     const val = payload[0].value;
     const color = payload[0].payload.fill || getSemanticColor(val);
     return (
-      <div className="bg-[#1e293b]/95 border border-white/10 p-3 rounded-xl shadow-xl">
+      <div className="bg-slate-800/95 border border-white/10 p-3 rounded-xl shadow-xl">
         <p className="text-[11px] text-slate-400 mb-1 uppercase tracking-wide font-medium">{label}</p>
         <p className="text-xl font-bold text-white">{val}<span className="text-sm text-slate-500 font-medium ml-0.5">%</span></p>
         {payload[0].payload.domain && (
@@ -149,7 +149,7 @@ export default function AnalyticsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] text-slate-200 p-8 flex flex-col items-center justify-center">
+      <div className="min-h-screen bg-slate-950 text-slate-200 p-8 flex flex-col items-center justify-center">
         <Activity className="w-8 h-8 text-indigo-500 animate-pulse mb-4" />
         <p className="text-sm text-slate-400 font-medium tracking-wide animate-pulse">Loading analytics...</p>
       </div>
@@ -157,7 +157,7 @@ export default function AnalyticsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-slate-200 font-sans relative selection:bg-indigo-500/30 pb-20">
+    <div className="min-h-screen bg-slate-950 text-slate-200 font-sans relative selection:bg-indigo-500/30 pb-20">
       
       {/* Refined Minimal Background */}
       <div className="absolute inset-0 pointer-events-none z-0">
@@ -179,7 +179,7 @@ export default function AnalyticsPage() {
         {/* Minimal KPI Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {kpis.map((stat, i) => (
-            <motion.div key={stat.label} {...fade(i * 0.1)} className="bg-[#111827]/80 backdrop-blur-md border border-white/5 p-5 rounded-2xl flex flex-col hover:bg-[#111827] transition-colors">
+            <motion.div key={stat.label} {...fade(i * 0.1)} className="bg-slate-900/80 backdrop-blur-md border border-white/5 p-5 rounded-2xl flex flex-col hover:bg-slate-900 transition-colors">
               <div className="flex justify-between items-start mb-4">
                 <stat.icon className="w-5 h-5 text-slate-400" />
                 <div className={`flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium ${stat.trendUp ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400'}`}>
@@ -201,7 +201,7 @@ export default function AnalyticsPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           
           {/* Main Chart */}
-          <motion.div {...fade(0.2)} className="lg:col-span-2 bg-[#111827]/80 backdrop-blur-md border border-white/5 rounded-2xl p-6 flex flex-col">
+          <motion.div {...fade(0.2)} className="lg:col-span-2 bg-slate-900/80 backdrop-blur-md border border-white/5 rounded-2xl p-6 flex flex-col">
             <div className="mb-6">
               <h2 className="text-lg font-medium text-white">Progress Trends</h2>
             </div>
@@ -237,7 +237,7 @@ export default function AnalyticsPage() {
           </motion.div>
 
           {/* AI Recommendations */}
-          <motion.div {...fade(0.3)} className="bg-[#111827]/80 backdrop-blur-md border border-white/5 rounded-2xl p-6 flex flex-col">
+          <motion.div {...fade(0.3)} className="bg-slate-900/80 backdrop-blur-md border border-white/5 rounded-2xl p-6 flex flex-col">
             <h2 className="text-lg font-medium text-white mb-6">AI Recommendations</h2>
             <div className="flex-1 flex flex-col gap-3">
               {insights.coaching.map((tip: string, idx: number) => (
@@ -255,7 +255,7 @@ export default function AnalyticsPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           
           {/* Domain Breakdown */}
-          <motion.div {...fade(0.4)} className="bg-[#111827]/80 backdrop-blur-md border border-white/5 rounded-2xl p-6 flex flex-col hover:border-indigo-500/30 hover:shadow-[0_0_30px_-5px_rgba(99,102,241,0.15)] transition-all duration-300 shadow-lg">
+          <motion.div {...fade(0.4)} className="bg-slate-900/80 backdrop-blur-md border border-white/5 rounded-2xl p-6 flex flex-col hover:border-indigo-500/30 hover:shadow-[0_0_30px_-5px_rgba(99,102,241,0.15)] transition-all duration-300 shadow-lg">
             <div className="flex justify-between items-start mb-6">
               <div>
                 <h2 className="text-lg font-medium text-white flex items-center gap-2">
@@ -310,7 +310,7 @@ export default function AnalyticsPage() {
           </motion.div>
 
           {/* Activity Heatmap */}
-          <motion.div {...fade(0.5)} className="bg-[#111827]/80 backdrop-blur-md border border-white/5 rounded-2xl p-6 flex flex-col hover:border-indigo-500/30 hover:shadow-[0_0_30px_-5px_rgba(99,102,241,0.15)] transition-all duration-300 shadow-lg">
+          <motion.div {...fade(0.5)} className="bg-slate-900/80 backdrop-blur-md border border-white/5 rounded-2xl p-6 flex flex-col hover:border-indigo-500/30 hover:shadow-[0_0_30px_-5px_rgba(99,102,241,0.15)] transition-all duration-300 shadow-lg">
             <div className="flex justify-between items-start mb-8">
               <div>
                 <h2 className="text-lg font-medium text-white flex items-center gap-2">

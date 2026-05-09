@@ -42,6 +42,12 @@ export async function POST(req: NextRequest) {
     resumeData = resume?.parsedData as any;
   }
 
+  // Get user profile for advanced settings
+  const userProfile = await prisma.profile.findUnique({
+    where: { userId },
+  });
+  const advancedSettings = userProfile?.advancedSettings || {};
+
   // Create DB session
   const interviewSession = await prisma.interviewSession.create({
     data: {
@@ -57,14 +63,15 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  // Generate opening message from AI interviewer
   const openingResponse = await generateInterviewerResponse(
     type,
     domain,
     difficulty,
     [],
     company,
-    resumeData
+    resumeData,
+    undefined,
+    advancedSettings
   );
 
   // Save opening message to DB
@@ -87,6 +94,7 @@ export async function POST(req: NextRequest) {
     questionCount: 0,
     userId,
     status: 'IN_PROGRESS',
+    advancedSettings,
     recentHistory: [{
       role: 'INTERVIEWER',
       content: openingResponse.message,

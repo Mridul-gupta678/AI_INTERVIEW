@@ -57,8 +57,22 @@ export default function InterviewPage() {
   const [aiCaption, setAiCaption] = useState<string>('');
   const aiCaptionRef = useRef<string>('');
 
+  const [advancedSettings, setAdvancedSettings] = useState<any>(null);
+
+  // ─── Fetch Advanced Settings ──────────────────────────────────────────────
+  useEffect(() => {
+    fetch('/api/profile')
+      .then(r => r.json())
+      .then(data => {
+        if (data.profile?.advancedSettings) {
+          setAdvancedSettings(data.profile.advancedSettings);
+        }
+      })
+      .catch(e => console.error("Failed to load settings:", e));
+  }, []);
+
   // ─── Realtime Session Monitoring ──────────────────────────────────────────
-  const [faceStatus, setFaceStatus] = useState<'DETECTING' | 'FACE_VISIBLE' | 'LOOKING_AWAY' | 'NO_FACE' | 'MULTIPLE_FACES'>('DETECTING');
+  const [faceStatus, setFaceStatus] = useState<'DETECTING' | 'FACE_VISIBLE' | 'LOOKING_AWAY' | 'NO_FACE' | 'MULTIPLE_FACES' | 'DISABLED'>('DETECTING');
   const [netStatus, setNetStatus] = useState('Stable');
   const [camActive, setCamActive] = useState(true);
 
@@ -129,15 +143,24 @@ export default function InterviewPage() {
     setAiSpeaking(true);
     aiSpeakingRef.current = true;
 
-    // Select best available voice
+    // Select best available voice based on advancedSettings
+    const targetVoiceType = advancedSettings?.aiVoice || 'onyx';
     const voices = window.speechSynthesis.getVoices();
-    const premiumVoices = ['Google UK English Male', 'Microsoft Mark', 'Samantha', 'Daniel'];
-    const preferredVoice = voices.find(v => premiumVoices.some(name => v.name.includes(name)))
-      || voices.find(v => v.lang.includes('en-GB') || v.lang.includes('en-US'))
-      || voices[0];
+    let preferredVoice;
+    
+    if (targetVoiceType === 'onyx' || targetVoiceType === 'alloy') {
+      preferredVoice = voices.find(v => v.name.includes('Google UK English Male') || v.name.includes('Microsoft Mark') || v.name.includes('Daniel'));
+    } else {
+      preferredVoice = voices.find(v => v.name.includes('Samantha') || v.name.includes('Google US English') || v.name.includes('Zira'));
+    }
+    
+    if (!preferredVoice) {
+      preferredVoice = voices.find(v => v.lang.includes('en-GB') || v.lang.includes('en-US')) || voices[0];
+    }
+    
     if (preferredVoice) utterance.voice = preferredVoice;
 
-    utterance.rate = 1.0;
+    utterance.rate = advancedSettings?.speakingSpeed || 1.0;
     utterance.pitch = 0.9;
 
     // WATCHDOG: Chrome's speechSynthesis silently stalls after ~5 minutes of use —
@@ -413,7 +436,7 @@ export default function InterviewPage() {
     sessionId,
     maxViolations: 3,
     onTerminate: handleTermination,
-    enabled: hasStarted && !interviewDone
+    enabled: hasStarted && !interviewDone && (advancedSettings?.tabMonitoring !== false)
   });
 
   const {
@@ -426,7 +449,7 @@ export default function InterviewPage() {
     sessionId,
     maxViolations: 3,
     onTerminate: handleTermination,
-    enabled: hasStarted && !interviewDone
+    enabled: hasStarted && !interviewDone && (advancedSettings?.fullscreenEnforcement !== false)
   });
 
   // ─── Start Interview ─────────────────────────────────────────────────────
@@ -502,7 +525,7 @@ export default function InterviewPage() {
   }
   // ─── Render: Active Interview ─────────────────────────────────────────────
   return (
-    <div className="h-screen w-full flex flex-col bg-[#02040a] overflow-hidden text-white font-sans relative selection:bg-indigo-500/30">
+    <div className="h-screen w-full flex flex-col bg-slate-950 overflow-hidden text-white font-sans relative selection:bg-indigo-500/30">
       
       {/* Premium Ambient Background */}
       <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
@@ -625,7 +648,7 @@ export default function InterviewPage() {
 
           {/* COLUMN 2: CAMERA PANEL (5fr) */}
           <div className={`transition-all duration-500 flex flex-col ${showCodeEditor ? 'w-1/2' : 'w-[50%]'}`}>
-            <div className="flex-1 bg-[#050812] border border-white/[0.08] rounded-3xl relative overflow-hidden flex flex-col shadow-2xl ring-1 ring-white/5 group">
+            <div className="flex-1 bg-slate-900 border border-white/[0.08] rounded-3xl relative overflow-hidden flex flex-col shadow-2xl ring-1 ring-white/5 group">
               
               <div className="absolute top-6 left-6 z-20 flex gap-3">
                 <div className="bg-black/60 backdrop-blur-xl px-3 py-1.5 rounded-lg border border-white/10 flex items-center gap-2 shadow-lg">
@@ -650,7 +673,7 @@ export default function InterviewPage() {
               <div className="absolute bottom-6 right-6 w-4 h-4 border-b-2 border-r-2 border-white/20 z-10 pointer-events-none" />
 
               <div className="flex-1 w-full h-full [&>div]:h-full [&>div]:w-full relative z-0">
-                <ProctoringSystem sessionId={sessionId} fullScreenMode={true} onStatusChange={setFaceStatus} />
+                <ProctoringSystem sessionId={sessionId} fullScreenMode={true} onStatusChange={setFaceStatus} enabled={advancedSettings?.faceTracking !== false} />
               </div>
             </div>
           </div>
@@ -658,12 +681,12 @@ export default function InterviewPage() {
           {/* COLUMN 3: ANALYTICS SIDEBAR (2fr) */}
           <div className={`transition-all duration-500 flex flex-col gap-6 ${showCodeEditor ? 'w-1/2' : 'w-[20%]'}`}>
             {showCodeEditor ? (
-              <div className="flex-1 bg-[#0a0c14] rounded-3xl border border-white/[0.05] shadow-2xl overflow-hidden relative">
+              <div className="flex-1 bg-slate-900 rounded-3xl border border-white/[0.05] shadow-2xl overflow-hidden relative">
                  <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500" />
                  <CodeEditor sessionId={sessionId} onCodeChange={setCurrentCode} onLanguageChange={setCurrentLanguage} />
               </div>
             ) : (
-              <div className="flex-1 bg-[#050812] border border-white/[0.05] rounded-3xl p-6 relative overflow-hidden flex flex-col shadow-2xl backdrop-blur-sm">
+              <div className="flex-1 bg-slate-900 border border-white/[0.05] rounded-3xl p-6 relative overflow-hidden flex flex-col shadow-2xl backdrop-blur-sm">
                 <div className="flex items-center gap-2 mb-6 border-b border-white/5 pb-4">
                   <Server className="w-4 h-4 text-slate-400" />
                   <span className="text-[11px] font-bold text-slate-300 tracking-widest uppercase">Session Status</span>
@@ -690,14 +713,14 @@ export default function InterviewPage() {
                   </div>
 
                   {/* Face Tracking */}
-                  <div className={`flex items-center justify-between px-3 py-2.5 rounded-lg border backdrop-blur-sm transition-colors ${faceStatus === 'FACE_VISIBLE' ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' : faceStatus === 'DETECTING' ? 'text-slate-400 bg-slate-500/10 border-slate-500/20' : faceStatus === 'LOOKING_AWAY' ? 'text-amber-400 bg-amber-500/10 border-amber-500/20' : 'text-rose-400 bg-rose-500/10 border-rose-500/20'}`}>
+                  <div className={`flex items-center justify-between px-3 py-2.5 rounded-lg border backdrop-blur-sm transition-colors ${faceStatus === 'FACE_VISIBLE' ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' : faceStatus === 'DISABLED' ? 'text-slate-400 bg-slate-500/10 border-slate-500/20' : faceStatus === 'DETECTING' ? 'text-slate-400 bg-slate-500/10 border-slate-500/20' : faceStatus === 'LOOKING_AWAY' ? 'text-amber-400 bg-amber-500/10 border-amber-500/20' : 'text-rose-400 bg-rose-500/10 border-rose-500/20'}`}>
                     <div className="flex items-center gap-2">
                       <Eye className="w-3.5 h-3.5 opacity-80" />
                       <span className="text-[10px] font-bold tracking-widest uppercase">
-                        {faceStatus === 'FACE_VISIBLE' ? 'Face Tracking Active' : faceStatus === 'DETECTING' ? 'Initializing Vision...' : faceStatus === 'LOOKING_AWAY' ? 'Gaze Warning' : 'Face Missing'}
+                        {faceStatus === 'FACE_VISIBLE' ? 'Face Tracking Active' : faceStatus === 'DISABLED' ? 'Face Tracking Disabled' : faceStatus === 'DETECTING' ? 'Initializing Vision...' : faceStatus === 'LOOKING_AWAY' ? 'Gaze Warning' : 'Face Missing'}
                       </span>
                     </div>
-                    <div className={`w-1.5 h-1.5 rounded-full ${faceStatus === 'FACE_VISIBLE' ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]' : faceStatus === 'DETECTING' ? 'bg-slate-400' : faceStatus === 'LOOKING_AWAY' ? 'bg-amber-400 animate-pulse' : 'bg-rose-400 animate-ping shadow-[0_0_8px_rgba(244,63,94,0.8)]'}`} />
+                    <div className={`w-1.5 h-1.5 rounded-full ${faceStatus === 'FACE_VISIBLE' ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]' : faceStatus === 'DISABLED' ? 'bg-slate-500' : faceStatus === 'DETECTING' ? 'bg-slate-400' : faceStatus === 'LOOKING_AWAY' ? 'bg-amber-400 animate-pulse' : 'bg-rose-400 animate-ping shadow-[0_0_8px_rgba(244,63,94,0.8)]'}`} />
                   </div>
 
                   {/* Audio/Mic */}
@@ -753,7 +776,7 @@ export default function InterviewPage() {
         </div>
 
         {/* BOTTOM ROW: Full Width Transcript */}
-        <div className="h-28 bg-[#050812] border border-white/[0.05] rounded-3xl p-5 shadow-2xl flex flex-col relative overflow-hidden shrink-0">
+        <div className="h-28 bg-slate-900 border border-white/[0.05] rounded-3xl p-5 shadow-2xl flex flex-col relative overflow-hidden shrink-0">
           <div className="absolute top-0 left-0 w-1 bg-gradient-to-b from-indigo-500 to-purple-500 h-full" />
           <div className="flex items-center gap-2 mb-2">
             <MessageSquare className="w-3.5 h-3.5 text-slate-500" />
@@ -782,7 +805,7 @@ export default function InterviewPage() {
 
       {/* ─── FLOATING CONTROL DOCK ─── */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-50">
-        <div className="bg-[#050812]/80 backdrop-blur-2xl border border-white/10 rounded-full p-2.5 shadow-[0_20px_40px_rgba(0,0,0,0.5)] flex items-center gap-3">
+        <div className="bg-slate-900/80 backdrop-blur-2xl border border-white/10 rounded-full p-2.5 shadow-[0_20px_40px_rgba(0,0,0,0.5)] flex items-center gap-3">
           
           <div className="flex items-center bg-white/5 rounded-full p-1 border border-white/5">
             {isListening ? (

@@ -88,7 +88,7 @@ export function InterviewBootSequence({ onComplete, onEnterFullscreen }: Intervi
   }, [step]);
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#020617] text-white flex overflow-hidden font-sans selection:bg-indigo-500/30">
+    <div className="fixed inset-0 z-50 bg-slate-950 text-white flex overflow-hidden font-sans selection:bg-indigo-500/30">
       {/* Background Ambience */}
       <div className="absolute inset-0 pointer-events-none z-0">
         <div className="absolute top-[-20%] left-[-10%] w-[50vw] h-[50vw] bg-indigo-600/10 rounded-full blur-[150px] mix-blend-screen animate-pulse" style={{ animationDuration: '8s' }} />
@@ -178,7 +178,7 @@ export function InterviewBootSequence({ onComplete, onEnterFullscreen }: Intervi
         {/* RIGHT PANEL: Diagnostics & Details */}
         <div className="flex-1 w-full max-w-lg">
           
-          <div className="bg-[#111827]/70 backdrop-blur-2xl border border-white/10 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
+          <div className="bg-slate-900/70 backdrop-blur-2xl border border-white/10 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
             {/* Header */}
             <div className="flex items-center gap-3 mb-8 border-b border-white/10 pb-6">
               <ShieldCheck className="w-6 h-6 text-emerald-400" />
@@ -192,7 +192,7 @@ export function InterviewBootSequence({ onComplete, onEnterFullscreen }: Intervi
               {/* STAGE 1: IDLE */}
               {step === 'IDLE' && (
                 <motion.div key="idle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-6">
-                  <div className="bg-[#0B1020] border border-white/5 rounded-xl p-5 mb-8">
+                  <div className="bg-slate-900 border border-white/5 rounded-xl p-5 mb-8">
                     <p className="text-xs uppercase tracking-widest text-slate-500 font-bold mb-4">Target Session Parameters</p>
                     <div className="grid grid-cols-2 gap-y-4 text-sm">
                       <div><span className="text-slate-500 block text-xs">Integrity Tracking</span><span className="text-emerald-400 font-medium">Enabled</span></div>

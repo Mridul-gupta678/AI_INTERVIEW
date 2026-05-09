@@ -11,7 +11,8 @@ import { ShieldAlert, ShieldCheck, EyeOff, Users, AlertCircle } from 'lucide-rea
 interface ProctoringSystemProps {
   sessionId: string;
   fullScreenMode?: boolean;
-  onStatusChange?: (status: 'DETECTING' | 'FACE_VISIBLE' | 'LOOKING_AWAY' | 'NO_FACE' | 'MULTIPLE_FACES') => void;
+  onStatusChange?: (status: 'DETECTING' | 'FACE_VISIBLE' | 'LOOKING_AWAY' | 'NO_FACE' | 'MULTIPLE_FACES' | 'DISABLED') => void;
+  enabled?: boolean;
 }
 
 // Detection Thresholds - carefully tuned for production
@@ -24,7 +25,7 @@ const FRAMES_TO_TRIGGER_MULTIPLE = 2; // 4 seconds at 0.5 FPS
 const GAZE_LEFT_THRESHOLD = 0.65;
 const GAZE_RIGHT_THRESHOLD = 0.35;
 
-export function ProctoringSystem({ sessionId, fullScreenMode = false, onStatusChange }: ProctoringSystemProps) {
+export function ProctoringSystem({ sessionId, fullScreenMode = false, onStatusChange, enabled = true }: ProctoringSystemProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -32,7 +33,7 @@ export function ProctoringSystem({ sessionId, fullScreenMode = false, onStatusCh
   const [isModelLoaded, setIsModelLoaded] = useState(false);
   const [isActive, setIsActive] = useState(false);
   const [warnings, setWarnings] = useState(0);
-  const [currentStatus, setCurrentStatus] = useState<'DETECTING' | 'FACE_VISIBLE' | 'LOOKING_AWAY' | 'NO_FACE' | 'MULTIPLE_FACES'>('DETECTING');
+  const [currentStatus, setCurrentStatus] = useState<'DETECTING' | 'FACE_VISIBLE' | 'LOOKING_AWAY' | 'NO_FACE' | 'MULTIPLE_FACES' | 'DISABLED'>(enabled ? 'DETECTING' : 'DISABLED');
 
   useEffect(() => {
     if (onStatusChange) onStatusChange(currentStatus);
@@ -99,6 +100,11 @@ export function ProctoringSystem({ sessionId, fullScreenMode = false, onStatusCh
     let detector: faceLandmarksDetection.FaceLandmarksDetector;
     let animationId: number;
     let isComponentMounted = true;
+
+    if (!enabled) {
+      setCurrentStatus('DISABLED');
+      return;
+    }
 
     const setupCamera = async () => {
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
@@ -299,6 +305,7 @@ export function ProctoringSystem({ sessionId, fullScreenMode = false, onStatusCh
       case 'NO_FACE': return { color: 'text-yellow-400', bg: 'bg-yellow-500/20', text: 'Face missing', icon: <EyeOff className="w-3 h-3 animate-pulse" /> };
       case 'LOOKING_AWAY': return { color: 'text-yellow-400', bg: 'bg-yellow-500/20', text: 'Looking away', icon: <AlertCircle className="w-3 h-3 animate-pulse" /> };
       case 'MULTIPLE_FACES': return { color: 'text-red-400', bg: 'bg-red-500/20', text: 'Multiple faces', icon: <Users className="w-3 h-3 animate-bounce" /> };
+      case 'DISABLED': return { color: 'text-slate-500', bg: 'bg-slate-500/10', text: 'Tracking Disabled', icon: <EyeOff className="w-3 h-3" /> };
       default: return { color: 'text-slate-400', bg: 'bg-slate-500/20', text: 'Detecting...', icon: null };
     }
   };

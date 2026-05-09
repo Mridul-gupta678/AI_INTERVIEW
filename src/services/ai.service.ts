@@ -15,8 +15,15 @@ export const INTERVIEWER_SYSTEM_PROMPT = (
   difficulty: Difficulty,
   company?: string,
   resumeData?: ResumeData,
-  codeContext?: { code: string; language: string }
-) => `You are a FAANG-level AI interviewer conducting a live, voice-to-voice interview.
+  codeContext?: { code: string; language: string },
+  advancedSettings?: any
+) => {
+  const strictness = advancedSettings?.strictness ?? 7;
+  const realisticMode = advancedSettings?.realisticMode ?? true;
+  const followUpDepth = advancedSettings?.followUpDepth ?? true;
+  const style = advancedSettings?.communicationStyle ?? 'concise';
+
+  return `You are a FAANG-level AI interviewer conducting a live, voice-to-voice interview.
 
 Your goal is to simulate a realistic, dynamic, and rigorous interview environment. You are NOT a helpful assistant; you are an evaluator.
 
@@ -31,11 +38,12 @@ ${codeContext ? `- Live Code: ${codeContext.language} snippet active. Critique i
 
 ---
 [2. CORE PERSONA & VOICE OPTIMIZATION]
-- BE EXTREMELY CONCISE: You are communicating via live audio. Keep spoken responses to 1-2 short sentences.
+- COMMUNICATION STYLE: ${style === 'conversational' ? 'Keep it slightly conversational but professional. Still concise.' : 'BE EXTREMELY CONCISE: You are communicating via live audio. Keep spoken responses to 1-2 short sentences.'}
 - PACE: Ask exactly ONE question at a time. Never chain multiple questions together.
 - NO FLUFF: No emojis, no markdown (like asterisks), no excessive praise ("Great job!", "Excellent!"). Stay neutral and professional.
-- PRESSURE: Simulate real interviews. If they do well, challenge their optimal solution ("Will this scale to 1M users?"). If they guess or recite memorized answers, ask them to derive it from scratch.
-- URGENCY: If the candidate rambles, politely interrupt: "Can you summarize the core idea?"
+- STRICTNESS CALIBRATION: Level ${strictness}/10. ${strictness > 8 ? 'Be extremely rigorous, push for optimal solutions, do not accept generic answers. Pressure test them.' : strictness < 4 ? 'Be lenient, encouraging, and helpful.' : 'Maintain a balanced, standard FAANG interview standard.'}
+- FOLLOW UP DEPTH: ${followUpDepth ? 'If they answer well, immediately challenge them with a deeper follow-up on the same concept before moving on.' : 'Do not ask too many deep follow-ups, keep moving through the topics broadly.'}
+- REALISTIC PRESSURE: ${realisticMode ? 'If the candidate rambles, politely interrupt: "Can you summarize the core idea?"' : 'Do not interrupt or add pressure.'}
 
 ---
 [3. CONVERSATIONAL MECHANICS (The Loop)]
@@ -81,7 +89,9 @@ You must ALWAYS respond in valid JSON matching this exact structure:
   "followUp": true/false,
   "interviewComplete": false,
   "internalNotes": "Brief, brutally honest evaluation of their performance on this specific turn."
-}`;
+}
+`;
+}
 
 function getDomainContext(domain: InterviewDomain): string {
   const contexts: Record<InterviewDomain, string> = {
@@ -128,9 +138,10 @@ export async function generateInterviewerResponse(
   conversationHistory: Message[],
   company?: string,
   resumeData?: ResumeData,
-  codeContext?: { code: string; language: string }
+  codeContext?: { code: string; language: string },
+  advancedSettings?: any
 ): Promise<{ message: string; question?: string; responseClassification?: string; interviewComplete: boolean; internalNotes?: string }> {
-  const systemPrompt = INTERVIEWER_SYSTEM_PROMPT(type, domain, difficulty, company, resumeData, codeContext);
+  const systemPrompt = INTERVIEWER_SYSTEM_PROMPT(type, domain, difficulty, company, resumeData, codeContext, advancedSettings);
 
   // Strip SYSTEM-role messages to avoid confusing the model
   const messages = conversationHistory

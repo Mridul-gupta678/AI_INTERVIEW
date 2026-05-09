@@ -37,9 +37,10 @@ export default function RegisterPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Registration failed');
-      await signIn('credentials', { email: form.email, password: form.password, redirect: false });
-      router.push('/dashboard');
-      toast.success('Account created! Welcome 🎉');
+      
+      // Redirect to verify email
+      toast.success('Account created! Please verify your email.');
+      router.push(`/auth/verify-email?email=${encodeURIComponent(form.email)}&password=${encodeURIComponent(form.password)}`);
     } catch (err: any) {
       toast.error(err.message);
     } finally {

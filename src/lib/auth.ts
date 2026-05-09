@@ -31,10 +31,12 @@ export const authOptions: NextAuthOptions = {
           include: { profile: true },
         });
 
-        if (!user || !user.passwordHash) return null;
+        if (!user || !user.passwordHash) throw new Error('Invalid email or password');
+
+        if (!user.emailVerified) throw new Error('Email not verified. Please verify your email first.');
 
         const isValid = await bcrypt.compare(credentials.password, user.passwordHash);
-        if (!isValid) return null;
+        if (!isValid) throw new Error('Invalid email or password');
 
         return {
           id: user.id,

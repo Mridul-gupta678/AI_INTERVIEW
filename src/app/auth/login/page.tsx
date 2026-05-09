@@ -34,8 +34,14 @@ function LoginForm() {
     setLoading(true);
     const result = await signIn('credentials', { email, password, redirect: false });
     setLoading(false);
+    
     if (result?.error) {
-      toast.error('Invalid email or password');
+      if (result.error.includes('Email not verified')) {
+        toast.error('Please verify your email before continuing.');
+        router.push(`/auth/verify-email?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`);
+      } else {
+        toast.error(result.error || 'Invalid email or password');
+      }
     } else {
       router.push('/dashboard');
     }

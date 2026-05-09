@@ -75,6 +75,18 @@ model VerificationToken {
   @@map("verification_tokens")
 }
 
+model OtpVerification {
+  id        String   @id @default(cuid())
+  email     String
+  otp       String
+  expiresAt DateTime
+  attempts  Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([email])
+  @@map("otp_verifications")
+}
+
 enum Role {
   USER
   ADMIN
@@ -107,6 +119,7 @@ model Profile {
   avgScore        Float     @default(0)
   streakDays      Int       @default(0)
   lastActiveAt    DateTime?
+  advancedSettings Json?
 
   @@map("profiles")
 }

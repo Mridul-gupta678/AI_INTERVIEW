@@ -48,7 +48,7 @@ const fade = (delay = 0) => ({
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-[#111827]/90 backdrop-blur-xl border border-white/10 p-3 rounded-xl shadow-2xl">
+      <div className="bg-slate-900/90 backdrop-blur-xl border border-white/10 p-3 rounded-xl shadow-2xl">
         <p className="text-xs text-slate-400 mb-1">{label}</p>
         <p className="text-sm font-bold text-white">Score: <span className="text-indigo-400">{payload[0].value}%</span></p>
         {payload[0].payload.domain && <p className="text-xs text-slate-500 mt-1 uppercase tracking-widest">{payload[0].payload.domain.replace('_', ' ')}</p>}
@@ -306,7 +306,7 @@ export default function DashboardPage() {
                       <span className="text-xs text-slate-400 w-28 truncate font-medium uppercase tracking-wider">
                         {domain.replace('_', ' ')}
                       </span>
-                      <div className="flex-1 h-2 bg-[#0B1020] rounded-full overflow-hidden border border-white/5 relative">
+                      <div className="flex-1 h-2 bg-slate-900 rounded-full overflow-hidden border border-white/5 relative">
                         <div
                           className="absolute top-0 left-0 h-full rounded-full transition-all duration-1000 ease-out"
                           style={{ 
@@ -361,7 +361,7 @@ export default function DashboardPage() {
                     href={`/interview/${s.id}/results`}
                     className="flex items-center gap-4 p-4 rounded-xl border border-white/5 bg-white/[0.01] hover:bg-white/[0.03] hover:border-white/10 transition-all group"
                   >
-                    <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl shrink-0 bg-[#0B1020] border border-white/5 shadow-inner">
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl shrink-0 bg-slate-900 border border-white/5 shadow-inner">
                       {domainCfg?.icon || '🧠'}
                     </div>
                     <div className="flex-1 min-w-0">

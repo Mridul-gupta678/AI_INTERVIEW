@@ -24,7 +24,17 @@ export default withAuth(
       return NextResponse.next();
     }
 
-    // Require NextAuth session for all other pages
+    // Check admin access first using the master password cookie
+    if (isAdminPath) {
+      const adminVerified = req.cookies.get('admin_verified')?.value === 'true';
+      if (!adminVerified) {
+        return NextResponse.redirect(new URL('/admin-login', req.url));
+      }
+      // If admin verified, we let them through immediately! No NextAuth required.
+      return NextResponse.next();
+    }
+
+    // Require NextAuth session for all other protected pages
     if (!isAuth) {
       let from = req.nextUrl.pathname;
       if (req.nextUrl.search) {
@@ -34,19 +44,6 @@ export default withAuth(
       return NextResponse.redirect(
         new URL(`/auth/login?from=${encodeURIComponent(from)}`, req.url)
       );
-    }
-
-    // Check admin access: require ADMIN role AND admin password verification
-    if (isAdminPath) {
-      if (token?.role !== 'ADMIN') {
-        return NextResponse.redirect(new URL('/dashboard', req.url));
-      }
-
-      // Check for admin password verification cookie
-      const adminVerified = req.cookies.get('admin_verified')?.value === 'true';
-      if (!adminVerified) {
-        return NextResponse.redirect(new URL('/admin-login', req.url));
-      }
     }
 
     return NextResponse.next();

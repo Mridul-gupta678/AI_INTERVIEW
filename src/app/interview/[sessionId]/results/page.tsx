@@ -98,7 +98,7 @@ const QuestionCard = ({ question, index, isOpen, onClick }: { question: any, ind
   const scoreColor = question.score >= 80 ? '#10b981' : question.score >= 60 ? '#8b5cf6' : question.score >= 40 ? '#f59e0b' : '#ef4444';
   
   return (
-    <div className="border border-white/5 bg-[#0a0a0f]/40 backdrop-blur-md rounded-2xl overflow-hidden transition-all duration-300 hover:bg-[#0a0a0f]/60 hover:border-white/10 mb-4">
+    <div className="border border-white/5 bg-slate-900/40 backdrop-blur-md rounded-2xl overflow-hidden transition-all duration-300 hover:bg-slate-900/60 hover:border-white/10 mb-4">
       <button onClick={onClick} className="w-full flex flex-col md:flex-row md:items-center gap-4 md:gap-6 p-6 md:p-8 text-left">
         <div className="flex-1">
           <div className="flex flex-wrap items-center gap-3 mb-3">
@@ -149,14 +149,14 @@ const QuestionCard = ({ question, index, isOpen, onClick }: { question: any, ind
                     </p>
                     <p className="text-sm md:text-base text-slate-300 leading-relaxed font-light">{question.answer}</p>
                  </div>
-                 <div className="bg-gradient-to-b from-[#6366f1]/[0.05] to-transparent rounded-2xl p-6 md:p-8 border border-[#6366f1]/10">
-                    <p className="text-[10px] uppercase tracking-widest text-[#8b5cf6] mb-5 flex items-center gap-2 font-medium">
+                 <div className="bg-gradient-to-b from-indigo-500/[0.05] to-transparent rounded-2xl p-6 md:p-8 border border-indigo-500/10">
+                    <p className="text-[10px] uppercase tracking-widest text-violet-500 mb-5 flex items-center gap-2 font-medium">
                       <Brain className="w-4 h-4"/> AI Analysis
                     </p>
                     <p className="text-sm md:text-base text-slate-300 leading-relaxed font-light mb-8">{question.feedback}</p>
                     {question.idealAnswer && (
-                      <div className="pt-6 border-t border-[#6366f1]/10">
-                         <p className="text-[10px] uppercase tracking-widest text-[#6366f1] mb-4 flex items-center gap-2 font-medium">
+                      <div className="pt-6 border-t border-indigo-500/10">
+                         <p className="text-[10px] uppercase tracking-widest text-indigo-500 mb-4 flex items-center gap-2 font-medium">
                            <Target className="w-4 h-4"/> Ideal Approach
                          </p>
                          <p className="text-sm md:text-base text-slate-400 leading-relaxed font-light">{question.idealAnswer}</p>
@@ -325,8 +325,8 @@ export default function ResultsPage() {
           .premium-dashboard { background-color: #030303; }
         `}} />
         <div className="text-center z-10">
-          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#6366f1]/20 to-[#8b5cf6]/20 flex items-center justify-center mx-auto mb-6 border border-white/10 animate-pulse" style={{ boxShadow: '0 0 40px rgba(99,102,241,0.2)' }}>
-            <Brain className="w-10 h-10 text-[#8b5cf6]" />
+          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-violet-500/20 flex items-center justify-center mx-auto mb-6 border border-white/10 animate-pulse" style={{ boxShadow: '0 0 40px rgba(99,102,241,0.2)' }}>
+            <Brain className="w-10 h-10 text-violet-500" />
           </div>
           <p className="text-white text-lg font-medium tracking-tight">Analyzing Performance</p>
           <p className="text-sm text-slate-400 mt-2 font-light">Synthesizing advanced AI hiring intelligence...</p>
@@ -335,7 +335,7 @@ export default function ResultsPage() {
               <motion.div key={i} 
                 animate={{ scale: [1, 1.5, 1], opacity: [0.3, 1, 0.3] }} 
                 transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.2 }}
-                className="w-1.5 h-1.5 rounded-full bg-[#8b5cf6]" 
+                className="w-1.5 h-1.5 rounded-full bg-violet-500" 
               />
             ))}
           </div>
@@ -484,7 +484,7 @@ export default function ResultsPage() {
       <header className="fixed top-0 left-0 right-0 z-50 glass-header px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#6366f1] to-[#8b5cf6] flex items-center justify-center shadow-[0_0_20px_rgba(99,102,241,0.4)] border border-white/20">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center shadow-[0_0_20px_rgba(99,102,241,0.4)] border border-white/20">
               <Brain className="w-5 h-5 text-white" />
             </div>
             <div>
@@ -526,18 +526,18 @@ export default function ResultsPage() {
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
           className="glass-panel p-8 md:p-12 overflow-hidden relative"
         >
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-2xl h-[300px] bg-gradient-to-b from-[#6366f1]/10 to-transparent blur-[60px] pointer-events-none rounded-full" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-2xl h-[300px] bg-gradient-to-b from-indigo-500/10 to-transparent blur-[60px] pointer-events-none rounded-full" />
           
           <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
             {/* Probability ring */}
             <div className="shrink-0 relative">
-              <div className="absolute inset-0 bg-[#8b5cf6]/5 blur-3xl rounded-full" />
+              <div className="absolute inset-0 bg-violet-500/5 blur-3xl rounded-full" />
               <PremiumScoreRing score={hiringProbability} size={240} strokeWidth={8} label="Hiring Probability" />
             </div>
 
             <div className="flex-1 text-center lg:text-left relative z-10">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 mb-6">
-                <Target className="w-4 h-4 text-[#8b5cf6]" />
+                <Target className="w-4 h-4 text-violet-500" />
                 <span className="text-xs uppercase tracking-widest font-semibold text-slate-300">AI Hiring Verdict</span>
               </div>
               
@@ -557,7 +557,7 @@ export default function ResultsPage() {
               <div className="mt-8 flex flex-wrap items-center justify-center lg:justify-start gap-4">
                 <div className="px-4 py-2 rounded-xl bg-white/5 border border-white/5 flex items-center gap-2">
                   <span className="text-[10px] uppercase tracking-widest text-slate-500">Suggested Level:</span>
-                  <span className="text-sm font-semibold text-[#8b5cf6]">{extraMetrics.seniorityFit || evaluation.seniorityFit || 'N/A'}</span>
+                  <span className="text-sm font-semibold text-violet-500">{extraMetrics.seniorityFit || evaluation.seniorityFit || 'N/A'}</span>
                 </div>
                 <div className="px-4 py-2 rounded-xl bg-white/5 border border-white/5 flex items-center gap-2">
                   <span className="text-[10px] uppercase tracking-widest text-slate-500">Technical Depth:</span>
@@ -577,7 +577,7 @@ export default function ResultsPage() {
             className="glass-panel p-8"
           >
             <div className="flex items-center gap-3 mb-6">
-              <div className="p-2.5 rounded-xl bg-[#6366f1]/10 border border-[#6366f1]/20 text-[#6366f1]">
+              <div className="p-2.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-500">
                 <Crosshair className="w-5 h-5" />
               </div>
               <h3 className="text-lg font-semibold text-white tracking-tight">Problem Solving Analysis</h3>
@@ -592,7 +592,7 @@ export default function ResultsPage() {
             className="glass-panel p-8"
           >
             <div className="flex items-center gap-3 mb-6">
-              <div className="p-2.5 rounded-xl bg-[#8b5cf6]/10 border border-[#8b5cf6]/20 text-[#8b5cf6]">
+              <div className="p-2.5 rounded-xl bg-violet-500/10 border border-violet-500/20 text-violet-500">
                 <MessageSquare className="w-5 h-5" />
               </div>
               <h3 className="text-lg font-semibold text-white tracking-tight">Communication & Behavioral</h3>
@@ -613,10 +613,10 @@ export default function ResultsPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="glass-panel p-8 lg:col-span-2 bg-gradient-to-br from-[#6366f1]/5 to-transparent border-[#6366f1]/10"
+            className="glass-panel p-8 lg:col-span-2 bg-gradient-to-br from-indigo-500/5 to-transparent border-indigo-500/10"
           >
             <div className="flex items-center gap-3 mb-6">
-              <div className="p-2.5 rounded-xl bg-[#6366f1]/10 border border-[#6366f1]/20 text-[#6366f1]">
+              <div className="p-2.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-500">
                 <Brain className="w-5 h-5" />
               </div>
               <h3 className="text-lg font-semibold text-white tracking-tight">AI Coaching Suggestions</h3>
@@ -629,12 +629,12 @@ export default function ResultsPage() {
                 </div>
                 <div className="h-px w-full bg-white/5" />
                 <div>
-                  <h4 className="text-[10px] uppercase tracking-widest text-[#8b5cf6] font-semibold mb-2">How to Improve</h4>
+                  <h4 className="text-[10px] uppercase tracking-widest text-violet-500 font-semibold mb-2">How to Improve</h4>
                   <p className="text-sm text-slate-300 leading-relaxed font-light">{extraMetrics.coachingSuggestions.howToImprove}</p>
                 </div>
                 <div className="h-px w-full bg-white/5" />
                 <div>
-                  <h4 className="text-[10px] uppercase tracking-widest text-[#10b981] font-semibold mb-2">Recommended Next Steps</h4>
+                  <h4 className="text-[10px] uppercase tracking-widest text-emerald-500 font-semibold mb-2">Recommended Next Steps</h4>
                   <p className="text-sm text-slate-300 leading-relaxed font-light">{extraMetrics.coachingSuggestions.nextSteps}</p>
                 </div>
               </div>
@@ -701,7 +701,7 @@ export default function ResultsPage() {
           >
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
               <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-xl bg-[#10b981]/10 border border-[#10b981]/20 text-[#10b981]">
+                <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-500">
                   <Map className="w-5 h-5" />
                 </div>
                 <h3 className="text-xl font-semibold text-white tracking-tight">AI Improvement Roadmap</h3>
@@ -722,7 +722,7 @@ export default function ResultsPage() {
                   <div className="absolute top-0 right-0 p-4 opacity-5 text-white transform group-hover:scale-110 transition-transform">
                     <Milestone className="w-16 h-16" />
                   </div>
-                  <div className="text-[#10b981] font-bold text-lg mb-2 relative z-10">Phase {i+1}</div>
+                  <div className="text-emerald-500 font-bold text-lg mb-2 relative z-10">Phase {i+1}</div>
                   <p className="text-sm text-slate-300 font-light leading-relaxed relative z-10">{step}</p>
                 </div>
               ))}
@@ -764,7 +764,7 @@ export default function ResultsPage() {
           transition={{ duration: 0.6, delay: 0.5 }}
           className="glass-panel p-10 text-center relative overflow-hidden"
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-[#6366f1]/10 via-transparent to-[#8b5cf6]/10" />
+          <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 via-transparent to-violet-500/10" />
           <h3 className="text-2xl font-bold text-white mb-3 tracking-tight relative z-10">
             {hiringProbability >= 70 ? "Ready for the next challenge?" : "Let's work on the improvement plan."}
           </h3>

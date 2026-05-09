@@ -23,7 +23,7 @@ export async function PATCH(req: NextRequest) {
 
   const userId = (session.user as any).id;
   const body = await req.json();
-  const { name, bio, targetRole, experience, preferredStack, linkedinUrl, githubUrl } = body;
+  const { name, bio, targetRole, experience, preferredStack, linkedinUrl, githubUrl, advancedSettings } = body;
 
   await prisma.user.update({
     where: { id: userId },
@@ -32,8 +32,8 @@ export async function PATCH(req: NextRequest) {
 
   const profile = await prisma.profile.upsert({
     where: { userId },
-    create: { userId, bio, targetRole, experience, preferredStack, linkedinUrl, githubUrl },
-    update: { bio, targetRole, experience, preferredStack, linkedinUrl, githubUrl },
+    create: { userId, bio, targetRole, experience, preferredStack, linkedinUrl, githubUrl, advancedSettings },
+    update: { bio, targetRole, experience, preferredStack, linkedinUrl, githubUrl, advancedSettings },
   });
 
   return NextResponse.json({ profile });

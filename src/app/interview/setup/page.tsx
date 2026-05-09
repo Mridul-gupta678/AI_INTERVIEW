@@ -109,7 +109,7 @@ export default function InterviewSetupPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#070B14] py-12 px-6 relative overflow-hidden text-slate-200 font-sans z-10">
+    <div className="min-h-screen bg-slate-900 py-12 px-6 relative overflow-hidden text-slate-200 font-sans z-10">
       <div className="max-w-[1200px] mx-auto">
         
         {/* Header */}
@@ -164,7 +164,7 @@ export default function InterviewSetupPage() {
                           onClick={() => setConfig(c => ({ ...c, type: type.value }))}
                           className={`p-5 rounded-2xl text-left transition-all duration-300 relative overflow-hidden group ${
                             selected 
-                              ? 'bg-[#111827] border-indigo-500/50 shadow-[0_0_25px_rgba(99,102,241,0.15)] ring-1 ring-indigo-500/50' 
+                              ? 'bg-slate-900 border-indigo-500/50 shadow-[0_0_25px_rgba(99,102,241,0.15)] ring-1 ring-indigo-500/50' 
                               : 'bg-white/[0.02] border-white/5 hover:bg-white/[0.04] border hover:border-white/10'
                           }`}
                         >
@@ -233,7 +233,7 @@ export default function InterviewSetupPage() {
                           onClick={() => setConfig(c => ({ ...c, difficulty: d.value }))}
                           className={`py-3 px-2 rounded-xl text-center transition-all duration-300 ${
                             selected 
-                              ? 'bg-[#111827] border border-white/10 shadow-xl' 
+                              ? 'bg-slate-900 border border-white/10 shadow-xl' 
                               : 'hover:bg-white/[0.02] text-slate-400'
                           }`}
                         >
@@ -300,7 +300,7 @@ export default function InterviewSetupPage() {
               {step === 3 && (
                 <motion.div key="step3" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }}>
                   
-                  <div className="bg-gradient-to-br from-[#111827] to-[#0B1020] border border-white/10 p-8 rounded-3xl mb-8 relative overflow-hidden group">
+                  <div className="bg-gradient-to-br from-slate-900 to-slate-900 border border-white/10 p-8 rounded-3xl mb-8 relative overflow-hidden group">
                     <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-violet-600" />
                     <h2 className="text-lg font-bold text-white mb-2 flex items-center gap-3">
                       <Upload className="w-5 h-5 text-indigo-400" />
@@ -365,29 +365,29 @@ export default function InterviewSetupPage() {
               </h3>
               
               <div className="space-y-5">
-                <div className="bg-[#0B1020] rounded-xl p-4 border border-white/5">
+                <div className="bg-slate-900 rounded-xl p-4 border border-white/5">
                   <p className="text-[10px] uppercase tracking-widest text-slate-500 font-semibold mb-1">Architecture</p>
                   <p className="text-sm font-medium text-white">{config.type ? INTERVIEW_TYPES.find(t => t.value === config.type)?.label : 'Pending Selection'}</p>
                 </div>
                 
-                <div className="bg-[#0B1020] rounded-xl p-4 border border-white/5">
+                <div className="bg-slate-900 rounded-xl p-4 border border-white/5">
                   <p className="text-[10px] uppercase tracking-widest text-slate-500 font-semibold mb-1">Domain Vector</p>
                   <p className="text-sm font-medium text-indigo-300">{config.domain ? DOMAIN_CONFIG[config.domain]?.label : 'Pending Selection'}</p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-[#0B1020] rounded-xl p-4 border border-white/5">
+                  <div className="bg-slate-900 rounded-xl p-4 border border-white/5">
                     <p className="text-[10px] uppercase tracking-widest text-slate-500 font-semibold mb-1">Calibration</p>
                     <p className="text-sm font-medium text-white">{config.difficulty}</p>
                   </div>
-                  <div className="bg-[#0B1020] rounded-xl p-4 border border-white/5">
+                  <div className="bg-slate-900 rounded-xl p-4 border border-white/5">
                     <p className="text-[10px] uppercase tracking-widest text-slate-500 font-semibold mb-1">Timebox</p>
                     <p className="text-sm font-medium text-white">{config.duration}m</p>
                   </div>
                 </div>
 
                 {config.company && (
-                  <div className="bg-[#0B1020] rounded-xl p-4 border border-indigo-500/20">
+                  <div className="bg-slate-900 rounded-xl p-4 border border-indigo-500/20">
                     <p className="text-[10px] uppercase tracking-widest text-indigo-400 font-semibold mb-1">Target Persona</p>
                     <p className="text-sm font-medium text-white">{config.company} Framework</p>
                   </div>

@@ -113,14 +113,14 @@ export default function HistoryPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#030712] flex items-center justify-center">
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
         <Activity className="w-8 h-8 text-indigo-500 animate-pulse" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#030712] text-slate-200 font-sans p-6 lg:p-10 relative">
+    <div className="min-h-screen bg-slate-950 text-slate-200 font-sans p-6 lg:p-10 relative">
       
       {/* Immersive Background */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
@@ -157,28 +157,28 @@ export default function HistoryPage() {
 
           {/* Compact Analytics Strip */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <div className="bg-[#111827]/60 backdrop-blur-md border border-white/5 rounded-xl p-4 hover:border-white/10 transition-colors">
+            <div className="bg-slate-900/60 backdrop-blur-md border border-white/5 rounded-xl p-4 hover:border-white/10 transition-colors">
               <div className="flex items-center gap-2 text-slate-400 mb-2">
                 <Target className="w-4 h-4" />
                 <span className="text-xs font-semibold uppercase tracking-wider">Sessions</span>
               </div>
               <p className="text-2xl font-bold text-white">{totalInterviews}</p>
             </div>
-            <div className="bg-[#111827]/60 backdrop-blur-md border border-white/5 rounded-xl p-4 hover:border-white/10 transition-colors">
+            <div className="bg-slate-900/60 backdrop-blur-md border border-white/5 rounded-xl p-4 hover:border-white/10 transition-colors">
               <div className="flex items-center gap-2 text-slate-400 mb-2">
                 <Award className="w-4 h-4" />
                 <span className="text-xs font-semibold uppercase tracking-wider">Avg Score</span>
               </div>
               <p className="text-2xl font-bold text-indigo-400">{avgScore}%</p>
             </div>
-            <div className="bg-[#111827]/60 backdrop-blur-md border border-white/5 rounded-xl p-4 hover:border-white/10 transition-colors">
+            <div className="bg-slate-900/60 backdrop-blur-md border border-white/5 rounded-xl p-4 hover:border-white/10 transition-colors">
               <div className="flex items-center gap-2 text-slate-400 mb-2">
                 <Flame className="w-4 h-4 text-orange-500" />
                 <span className="text-xs font-semibold uppercase tracking-wider">Streak</span>
               </div>
               <p className="text-2xl font-bold text-white">{currentStreak} <span className="text-sm font-medium text-slate-500">days</span></p>
             </div>
-            <div className="bg-[#111827]/60 backdrop-blur-md border border-white/5 rounded-xl p-4 hover:border-white/10 transition-colors">
+            <div className="bg-slate-900/60 backdrop-blur-md border border-white/5 rounded-xl p-4 hover:border-white/10 transition-colors">
               <div className="flex items-center gap-2 text-slate-400 mb-2">
                 <Zap className="w-4 h-4 text-emerald-500" />
                 <span className="text-xs font-semibold uppercase tracking-wider">Best Domain</span>
@@ -197,7 +197,7 @@ export default function HistoryPage() {
                 placeholder="Search interviews..."
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                className="w-full bg-[#111827]/80 backdrop-blur-sm border border-white/5 focus:border-indigo-500/50 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-500 outline-none transition-all shadow-inner relative z-10"
+                className="w-full bg-slate-900/80 backdrop-blur-sm border border-white/5 focus:border-indigo-500/50 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-500 outline-none transition-all shadow-inner relative z-10"
               />
             </div>
             
@@ -220,7 +220,7 @@ export default function HistoryPage() {
 
           {/* Timeline & Cards */}
           {filteredSessions.length === 0 ? (
-            <div className="flex-1 flex flex-col items-center justify-center p-12 bg-[#111827]/40 border border-white/5 rounded-2xl border-dashed">
+            <div className="flex-1 flex flex-col items-center justify-center p-12 bg-slate-900/40 border border-white/5 rounded-2xl border-dashed">
               <div className="w-16 h-16 bg-slate-800/50 rounded-2xl flex items-center justify-center mb-4 border border-white/5">
                 <Search className="w-8 h-8 text-slate-500" />
               </div>
@@ -255,14 +255,14 @@ export default function HistoryPage() {
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: idx * 0.1 + i * 0.05 }}
-                            className="group relative bg-[#111827]/60 backdrop-blur-xl border border-white/5 rounded-2xl p-5 flex items-center gap-5 hover:bg-[#111827] hover:border-indigo-500/30 hover:shadow-[0_0_30px_-5px_rgba(99,102,241,0.15)] transition-all duration-300 overflow-hidden"
+                            className="group relative bg-slate-900/60 backdrop-blur-xl border border-white/5 rounded-2xl p-5 flex items-center gap-5 hover:bg-slate-900 hover:border-indigo-500/30 hover:shadow-[0_0_30px_-5px_rgba(99,102,241,0.15)] transition-all duration-300 overflow-hidden"
                           >
                             {/* Subtle hover gradient */}
                             <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
                             
                             {/* Left Icon */}
                             <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${domainCfg?.color || 'from-indigo-500 to-purple-600'} p-[1px] shrink-0 group-hover:scale-105 transition-transform duration-300`}>
-                              <div className="w-full h-full bg-[#0f172a] rounded-[15px] flex items-center justify-center text-xl">
+                              <div className="w-full h-full bg-slate-900 rounded-[15px] flex items-center justify-center text-xl">
                                 {domainCfg?.icon || '🎯'}
                               </div>
                             </div>
@@ -350,7 +350,7 @@ export default function HistoryPage() {
         {/* Right Column: Smart Analytics Panel */}
         <div className="w-full xl:w-[340px] shrink-0 flex flex-col gap-5">
           
-          <div className="bg-[#111827]/80 backdrop-blur-2xl border border-white/5 rounded-2xl p-5 shadow-xl relative overflow-hidden">
+          <div className="bg-slate-900/80 backdrop-blur-2xl border border-white/5 rounded-2xl p-5 shadow-xl relative overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 blur-[50px]" />
             <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2 relative z-10">
               <Brain className="w-4 h-4 text-indigo-400" />
@@ -371,7 +371,7 @@ export default function HistoryPage() {
             </div>
           </div>
 
-          <div className="bg-[#111827]/80 backdrop-blur-2xl border border-white/5 rounded-2xl p-5 shadow-xl flex flex-col">
+          <div className="bg-slate-900/80 backdrop-blur-2xl border border-white/5 rounded-2xl p-5 shadow-xl flex flex-col">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-sm font-semibold text-white flex items-center gap-2">
                 <TrendingUp className="w-4 h-4 text-emerald-400" />
@@ -393,7 +393,7 @@ export default function HistoryPage() {
                     content={({ active, payload }) => {
                       if (active && payload && payload.length) {
                         return (
-                          <div className="bg-[#1e293b]/95 border border-white/10 p-2 rounded-lg shadow-xl">
+                          <div className="bg-slate-800/95 border border-white/10 p-2 rounded-lg shadow-xl">
                             <p className="text-xs text-slate-400 mb-0.5">{payload[0].payload.date}</p>
                             <p className="text-sm font-bold text-emerald-400">{payload[0].value}%</p>
                           </div>
@@ -408,7 +408,7 @@ export default function HistoryPage() {
             </div>
           </div>
 
-          <div className="bg-[#111827]/80 backdrop-blur-2xl border border-white/5 rounded-2xl p-5 shadow-xl flex flex-col relative overflow-hidden">
+          <div className="bg-slate-900/80 backdrop-blur-2xl border border-white/5 rounded-2xl p-5 shadow-xl flex flex-col relative overflow-hidden">
              <h3 className="text-sm font-semibold text-white mb-5 flex items-center gap-2 relative z-10">
               <Calendar className="w-4 h-4 text-indigo-400" />
               Activity Heatmap

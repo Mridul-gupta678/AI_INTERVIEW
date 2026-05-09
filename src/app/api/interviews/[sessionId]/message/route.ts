@@ -57,6 +57,7 @@ export async function POST(
     if (!dbSession) {
       return NextResponse.json({ error: 'Session not found' }, { status: 404 });
     }
+    const userProfile = await prisma.profile.findUnique({ where: { userId } });
     interviewSession = dbSession;
     rawHistory = dbHistory.reverse();
 
@@ -71,6 +72,7 @@ export async function POST(
       lastQuestion: undefined,
       userId: dbSession.userId,
       status: 'IN_PROGRESS',
+      advancedSettings: userProfile?.advancedSettings || {},
       recentHistory: rawHistory,
     };
   }
@@ -93,7 +95,8 @@ export async function POST(
     history as any,
     interviewSession.company,
     cachedCtx?.resumeData,
-    codeContext
+    codeContext,
+    cachedCtx?.advancedSettings
   );
 
   // ── CRITICAL: Await Redis update before returning ──────────────────────────
