@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -9,8 +9,8 @@ import {
   Activity, Video, LayoutDashboard, Terminal, MessageSquare,
   ChevronDown, Menu, X, TrendingUp, Lock
 } from 'lucide-react';
+import '@fontsource/geist-sans';
 
-// --- ANIMATION VARIANTS ---
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } }
@@ -26,40 +26,89 @@ const staggerContainer = {
 
 export default function HomePage() {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [scrollY, setScrollY] = useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
 
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [videoOpacity, setVideoOpacity] = useState(0);
+
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 20);
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+      setScrollY(window.scrollY);
+    };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  return (
-    <div className="min-h-screen bg-slate-950 text-white selection:bg-indigo-500/30 overflow-x-hidden font-sans">
-      
-      {/* --- BACKGROUND SYSTEM --- */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
-        <div className="absolute inset-0 bg-[#020617]" />
-        {/* Soft Grid */}
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.01)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.01)_1px,transparent_1px)] bg-[size:3rem_3rem] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_0%,#000_20%,transparent_100%)]" />
-        <div className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] bg-indigo-500/10 rounded-full blur-[120px] mix-blend-screen" />
-        <div className="absolute bottom-[-20%] left-[-10%] w-[500px] h-[500px] bg-blue-500/5 rounded-full blur-[100px] mix-blend-screen" />
-      </div>
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
 
+    let animationFrameId: number;
+
+    const updateOpacity = () => {
+      if (!video) return;
+      const { currentTime, duration } = video;
+      
+      if (duration) {
+        if (currentTime < 0.5) {
+          setVideoOpacity(currentTime / 0.5);
+        } else if (duration - currentTime <= 0.5) {
+          setVideoOpacity((duration - currentTime) / 0.5);
+        } else {
+          setVideoOpacity(1);
+        }
+      }
+      animationFrameId = requestAnimationFrame(updateOpacity);
+    };
+
+    const handlePlay = () => {
+      animationFrameId = requestAnimationFrame(updateOpacity);
+    };
+
+    const handleEnded = () => {
+      cancelAnimationFrame(animationFrameId);
+      setVideoOpacity(0);
+      setTimeout(() => {
+        if (video) {
+          video.currentTime = 0;
+          video.play().catch(console.error);
+        }
+      }, 100);
+    };
+
+    video.addEventListener('play', handlePlay);
+    video.addEventListener('ended', handleEnded);
+
+    video.play().catch(console.error);
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+      video.removeEventListener('play', handlePlay);
+      video.removeEventListener('ended', handleEnded);
+    };
+  }, []);
+
+  
+
+  return (
+    <div className="min-h-screen bg-[hsl(var(--background))] text-white selection:bg-indigo-500/30 overflow-x-hidden font-sans" style={{ fontFamily: '"Geist Sans", sans-serif' }}>
+      
       {/* --- NAVBAR --- */}
       <header className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 border-b ${
         isScrolled 
-          ? 'bg-[#020617]/80 backdrop-blur-xl border-white/10 py-3' 
+          ? 'bg-[hsl(var(--background))]/80 backdrop-blur-xl border-white/10 py-3' 
           : 'bg-transparent border-transparent py-5'
       }`}>
-        <div className="max-w-[1440px] mx-auto px-6 lg:px-12 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link href="/" className="flex items-center gap-2.5 group">
-              <div className="w-8 h-8 rounded-[10px] bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
-                <Brain className="w-4 h-4 text-indigo-400" />
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-500 flex items-center justify-center shadow-lg shadow-indigo-500/20 group-hover:shadow-indigo-500/40 transition-shadow duration-300">
+                <Brain className="w-4 h-4 text-white" />
               </div>
-              <span className="font-semibold text-[15px] tracking-tight text-white">InterviewAI</span>
+              <span className="font-bold text-[15px] tracking-tight text-white">InterviewAI</span>
             </Link>
             <Link href="/admin-login" className="hidden sm:flex items-center px-2 py-0.5 rounded-[10px] bg-white/5 border border-white/10 text-[10px] font-medium text-white/50 tracking-widest shadow-sm hover:bg-white/10 hover:text-white transition-colors cursor-pointer">
               ADMIN CONSOLE
@@ -67,7 +116,7 @@ export default function HomePage() {
           </div>
 
           <nav className="hidden md:flex items-center gap-8">
-            {['Features', 'How It Works', 'Testimonials', 'Pricing'].map(item => (
+            {['Features', 'How it Works', 'Testimonials', 'Pricing'].map(item => (
               <Link key={item} href={`#${item.toLowerCase().replace(/ /g, '-')}`} className="text-[13px] font-medium text-white/60 hover:text-white transition-colors">
                 {item}
               </Link>
@@ -82,7 +131,7 @@ export default function HomePage() {
             <Link href="/auth/login" className="text-[13px] font-medium text-white/70 hover:text-white transition-colors">
               Log In
             </Link>
-            <Link href="/auth/register" className="px-5 py-2 rounded-[14px] text-[13px] font-medium text-white bg-indigo-600 hover:bg-indigo-500 transition-colors shadow-[0_0_15px_rgba(79,70,229,0.3),inset_0_1px_0_rgba(255,255,255,0.2)]">
+            <Link href="/auth/register" className="px-5 py-2 rounded-lg text-[13px] font-semibold text-white bg-indigo-600 hover:bg-indigo-500 transition-colors shadow-[0_0_15px_rgba(79,70,229,0.3)]">
               Start Interview
             </Link>
           </div>
@@ -93,315 +142,230 @@ export default function HomePage() {
         </div>
       </header>
 
-      <main className="relative z-10 pt-28 lg:pt-36 pb-16">
-        <section className="px-6 lg:px-12 max-w-[1440px] mx-auto">
-          <div className="grid lg:grid-cols-[1fr_1.1fr] gap-12 lg:gap-16 items-center">
+      {/* --- HERO SECTION (New UI with previous content) --- */}
+      <div className="relative min-h-screen flex flex-col pt-24 overflow-hidden">
+        {/* Background Video */}
+        <div className="fixed inset-0 w-full h-full pointer-events-none z-0" style={{ filter: `blur(${Math.min(scrollY / 20, 20)}px)` }}>
+          <video 
+            ref={videoRef}
+            src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260328_065045_c44942da-53c6-4804-b734-f9e07fc22e08.mp4"
+            muted
+            playsInline
+            className="w-full h-full object-cover"
+            style={{ opacity: videoOpacity }}
+          />
+        </div>
+
+        {/* Blurred overlay shape */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[984px] h-[527px] opacity-90 bg-gray-950 blur-[82px] pointer-events-none z-0" />
+
+        {/* Hero Content */}
+        <main className="flex-1 flex flex-col items-center justify-center text-center px-4 w-full max-w-7xl mx-auto z-10">
+          <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="flex flex-col items-center">
             
-            {/* Left Content */}
-            <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="max-w-2xl">
-              <motion.div variants={fadeUp} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-[10px] text-xs font-medium mb-6 bg-white/[0.03] border border-white/[0.08] backdrop-blur-md shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]">
-                <div className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse" />
-                <span className="text-white/70">GPT-4o Powered Interview Engine</span>
-              </motion.div>
+            <motion.h1 variants={fadeUp} className="text-6xl sm:text-7xl md:text-[140px] lg:text-[180px] font-normal leading-[1.02] tracking-[-0.024em] whitespace-nowrap" style={{ fontFamily: '"General Sans", sans-serif' }}>
+              <span className="text-[hsl(var(--foreground))]">Interview </span>
+              <span className="bg-clip-text text-transparent" style={{ backgroundImage: 'linear-gradient(to left, #6366f1, #a855f7, #fcd34d)' }}>
+                AI
+              </span>
+            </motion.h1>
+            
+            <motion.p variants={fadeUp} className="text-[hsl(var(--hero-sub))] text-lg leading-8 max-w-md mt-[9px] opacity-80 text-center">
+              AI Interviews Designed<br />for Real Hiring
+            </motion.p>
 
-              <motion.h1 variants={fadeUp} className="text-4xl sm:text-5xl lg:text-[64px] font-bold tracking-[-0.02em] leading-[1.05] mb-6 text-white">
-                AI Interviews Designed<br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-white/90 to-white/60">
-                  for Real Hiring
-                </span>
-              </motion.h1>
-
-              <motion.p variants={fadeUp} className="text-[16px] text-white/50 leading-[1.6] mb-8 max-w-[500px]">
-                Conduct realistic AI-powered technical interviews with adaptive questioning, voice intelligence, live coding analysis, and enterprise-grade evaluation systems.
-              </motion.p>
-
-              <motion.div variants={fadeUp} className="flex flex-col sm:flex-row items-center gap-3 mb-10">
-                <Link href="/auth/register" className="group relative w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 rounded-[14px] font-medium text-[14px] text-white bg-gradient-to-b from-indigo-500 to-indigo-600 border border-indigo-500/50 hover:from-indigo-400 hover:to-indigo-500 shadow-[0_4px_14px_rgba(79,70,229,0.2),inset_0_1px_0_rgba(255,255,255,0.2)] transition-all duration-300">
-                  Launch Interview Session
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </Link>
-                <button className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 rounded-[14px] font-medium text-[14px] text-white/80 bg-white/[0.03] border border-white/10 hover:bg-white/[0.08] hover:text-white transition-all shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
-                  <Play className="w-4 h-4" /> View Platform Demo
-                </button>
-              </motion.div>
-
-              <motion.div variants={fadeUp} className="grid grid-cols-2 gap-y-4 gap-x-8 text-[13px] font-medium text-white/40 max-w-[500px]">
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400/70" /> 95% Interview Accuracy
-                </div>
-                <div className="flex items-center gap-2">
-                  <Activity className="w-4 h-4 text-emerald-400/70" /> Real-time AI Evaluation
-                </div>
-                <div className="flex items-center gap-2">
-                  <Brain className="w-4 h-4 text-emerald-400/70" /> Adaptive Questioning
-                </div>
-                <div className="flex items-center gap-2">
-                  <Shield className="w-4 h-4 text-emerald-400/70" /> Enterprise Proctoring
-                </div>
-              </motion.div>
+            <motion.div variants={fadeUp} className="flex flex-col sm:flex-row items-center gap-3 mt-[35px]">
+              <Link href="/auth/register" className="group relative w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 rounded-[14px] font-semibold text-[15px] text-white bg-gradient-to-b from-indigo-500 to-indigo-600 border border-indigo-500/50 hover:from-indigo-400 hover:to-indigo-500 shadow-[0_4px_14px_rgba(79,70,229,0.3),inset_0_1px_0_rgba(255,255,255,0.2)] transition-all duration-300">
+                Launch Interview Session
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
+              
             </motion.div>
 
-            {/* Right Product Preview Centerpiece */}
-            <motion.div 
-              initial={{ opacity: 0, x: 40, y: 10 }}
-              animate={{ opacity: 1, x: 0, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-              className="relative w-full h-[580px] mt-10 lg:mt-0"
-            >
-              <div className="absolute inset-0 rounded-[24px] bg-gradient-to-b from-white/[0.08] to-transparent p-px shadow-[0_20px_80px_-20px_rgba(79,70,229,0.3)]">
-                <div className="absolute inset-0 rounded-[24px] bg-[#0F172A] overflow-hidden flex flex-col shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]">
-                  
-                  {/* Dashboard Header */}
-                  <div className="h-11 border-b border-white/5 flex items-center justify-between px-4 bg-[#111827]">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2.5 h-2.5 rounded-full bg-white/20 hover:bg-red-400 transition-colors" />
-                      <div className="w-2.5 h-2.5 rounded-full bg-white/20 hover:bg-yellow-400 transition-colors" />
-                      <div className="w-2.5 h-2.5 rounded-full bg-white/20 hover:bg-green-400 transition-colors" />
+            <motion.div variants={fadeUp} className="grid grid-cols-2 md:grid-cols-4 gap-y-4 gap-x-6 text-[13px] font-medium text-[hsl(var(--foreground))]/60 mt-12 w-full max-w-3xl">
+              <div className="flex items-center justify-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400/70" /> 95% Interview Accuracy
+              </div>
+              <div className="flex items-center justify-center gap-2">
+                <Activity className="w-4 h-4 text-emerald-400/70" /> Real-time AI Evaluation
+              </div>
+              <div className="flex items-center justify-center gap-2">
+                <Brain className="w-4 h-4 text-emerald-400/70" /> Adaptive Questioning
+              </div>
+              <div className="flex items-center justify-center gap-2">
+                <Shield className="w-4 h-4 text-emerald-400/70" /> Enterprise Proctoring
+              </div>
+            </motion.div>
+          </motion.div>
+        </main>
+
+        
+      </div>
+
+      <main className="relative z-10">
+        {/* --- PRODUCT MOCKUP --- */}
+        <section className="mt-24 px-4 relative z-20">
+          <motion.div 
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="max-w-6xl mx-auto"
+          >
+            <div className="relative rounded-2xl p-2 bg-white/5 border border-white/10 shadow-[0_0_100px_-20px_rgba(79,70,229,0.3)] backdrop-blur-xl">
+              {/* Fake Browser Chrome */}
+              <div className="flex items-center gap-2 px-4 py-3 border-b border-white/10 bg-black/40 rounded-t-xl">
+                <div className="flex gap-1.5">
+                  <div className="w-3 h-3 rounded-full bg-red-500/80" />
+                  <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
+                  <div className="w-3 h-3 rounded-full bg-green-500/80" />
+                </div>
+                <div className="mx-auto bg-white/5 border border-white/10 rounded-md px-4 py-1 text-[10px] text-white/40 flex items-center gap-2">
+                  <Shield className="w-3 h-3" />
+                  interviewai.com/session/tech-round-1
+                </div>
+              </div>
+
+              {/* Dashboard Layout */}
+              <div className="bg-slate-950 rounded-b-xl overflow-hidden flex flex-col md:flex-row h-[600px]">
+                
+                {/* Left Panel - Code/Editor */}
+                <div className="flex-1 border-r border-white/5 flex flex-col relative overflow-hidden">
+                  <div className="p-4 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
+                    <div className="flex gap-4">
+                      <span className="text-xs font-semibold text-white">main.py</span>
+                      <span className="text-xs text-white/40">GraphTraversal</span>
                     </div>
-                    {/* Browser Tabs Simulation */}
-                    <div className="flex gap-2 mx-auto absolute left-1/2 -translate-x-1/2">
-                      <div className="px-4 py-1.5 rounded-t-[10px] bg-[#0F172A] border-x border-t border-white/5 text-[10px] text-white/70 flex items-center gap-2 mt-2 shadow-[0_-2px_10px_rgba(0,0,0,0.2)]">
-                        <Shield className="w-3 h-3 text-indigo-400" /> secure.interviewai.com
-                      </div>
+                    <div className="flex gap-2">
+                      <span className="px-2 py-1 rounded bg-green-500/20 text-green-400 text-[10px] font-bold uppercase">Proctor Active</span>
                     </div>
                   </div>
-
-                  {/* Dashboard Body */}
-                  <div className="flex-1 flex gap-2 p-2 overflow-hidden bg-[#020617]">
+                  <div className="p-4 font-mono text-[13px] leading-relaxed text-white/70 relative">
+                    <span className="text-purple-400">def</span> <span className="text-blue-400">bfs</span>(graph, start):<br/>
+                    &nbsp;&nbsp;visited = set()<br/>
+                    &nbsp;&nbsp;queue = [start]<br/>
+                    <br/>
+                    &nbsp;&nbsp;<span className="text-purple-400">while</span> queue:<br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;node = queue.pop(0)<br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<span className="text-purple-400">if</span> node <span className="text-purple-400">not in</span> visited:<br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;visited.add(node)<br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;queue.extend(graph[node] - visited)<br/>
+                    &nbsp;&nbsp;<span className="text-purple-400">return</span> visited
                     
-                    {/* Sidebar */}
-                    <div className="w-12 flex flex-col items-center py-2 gap-4 border border-white/5 bg-white/[0.02] rounded-[18px]">
-                      <div className="w-8 h-8 rounded-[10px] border border-white/10 bg-white/5 flex items-center justify-center shadow-sm">
-                        <LayoutDashboard className="w-4 h-4 text-white/50" />
-                      </div>
-                      <div className="w-8 h-8 rounded-[10px] bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
-                        <Video className="w-4 h-4 text-indigo-400" />
-                      </div>
-                      <div className="w-8 h-8 rounded-[10px] hover:bg-white/5 flex items-center justify-center transition-colors">
-                        <Terminal className="w-4 h-4 text-white/30" />
-                      </div>
-                      <div className="w-8 h-8 rounded-[10px] hover:bg-white/5 flex items-center justify-center transition-colors">
-                        <BarChart3 className="w-4 h-4 text-white/30" />
-                      </div>
-                      <div className="flex-1" />
-                      <div className="w-8 h-8 rounded-[10px] bg-indigo-600 flex items-center justify-center text-[10px] font-bold text-white shadow-md">
-                        JS
-                      </div>
+                    {/* Animated Cursor */}
+                    <motion.div 
+                      animate={{ opacity: [1, 0] }} 
+                      transition={{ repeat: Infinity, duration: 0.8 }} 
+                      className="absolute bottom-[-2px] ml-1 w-2 h-4 bg-white/80 inline-block"
+                      style={{ left: '160px', top: '180px' }}
+                    />
+                  </div>
+
+                  {/* Floating AI Panel */}
+                  <motion.div 
+                    initial={{ y: 20, opacity: 0 }}
+                    whileInView={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.5 }}
+                    className="absolute bottom-6 left-6 right-6 p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur-md flex gap-4"
+                  >
+                    <div className="w-10 h-10 rounded-full bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center shrink-0">
+                      <Brain className="w-5 h-5 text-indigo-400" />
                     </div>
+                    <div>
+                      <p className="text-[11px] font-semibold text-indigo-400 mb-1">AI Interviewer</p>
+                      <p className="text-sm text-white/90">That's a solid BFS implementation. Can you analyze its time and space complexity assuming an adjacency list representation?</p>
+                    </div>
+                  </motion.div>
+                </div>
 
-                    {/* Main Content Area */}
-                    <div className="flex-1 flex flex-col gap-2 relative overflow-hidden">
-                      {/* Top Grid: Webcam + Code */}
-                      <div className="h-[55%] flex gap-2">
-                        
-                        {/* Live Code Panel */}
-                        <div className="flex-1 border border-white/5 bg-[#0B1120] rounded-[18px] flex flex-col overflow-hidden shadow-sm">
-                          <div className="h-9 border-b border-white/5 flex items-center px-3 bg-white/[0.02]">
-                            <span className="text-[10px] font-mono text-white/40">solution.ts</span>
-                            <div className="ml-auto flex items-center gap-3">
-                              <span className="text-[9px] text-white/30 flex items-center gap-1"><CheckCircle2 className="w-3 h-3 text-emerald-500/50" /> Saved</span>
-                              <span className="px-2 py-0.5 rounded-[10px] bg-indigo-500/10 text-[9px] text-indigo-400 uppercase font-semibold">Typescript</span>
-                            </div>
-                          </div>
-                          <div className="flex-1 pt-4 px-4 font-mono text-[11px] text-white/60 leading-[1.8] relative">
-                            {/* Line numbers */}
-                            <div className="absolute left-0 top-4 bottom-0 w-8 flex flex-col items-end pr-2 text-white/20 select-none text-[10px]">
-                               {Array.from({length: 12}).map((_, i) => <span key={i}>{i+1}</span>)}
-                            </div>
-                            <div className="pl-6">
-                              <span className="text-purple-400">export function</span> <span className="text-blue-400">findMedian</span>(arr1: <span className="text-yellow-300">number</span>[], arr2: <span className="text-yellow-300">number</span>[]): <span className="text-yellow-300">number</span> {'{'}<br/>
-                              &nbsp;&nbsp;<span className="text-emerald-400/50">// Optimized O(log(min(m,n))) approach</span><br/>
-                              &nbsp;&nbsp;<span className="text-purple-400">if</span> (arr1.length &gt; arr2.length) {'{'}<br/>
-                              &nbsp;&nbsp;&nbsp;&nbsp;<span className="text-purple-400">return</span> findMedian(arr2, arr1);<br/>
-                              &nbsp;&nbsp;{'}'}<br/>
-                              <br/>
-                              &nbsp;&nbsp;<span className="text-purple-400">let</span> x = arr1.length;<br/>
-                              &nbsp;&nbsp;<span className="text-purple-400">let</span> y = arr2.length;<br/>
-                              &nbsp;&nbsp;<span className="text-purple-400">let</span> low = <span className="text-orange-400">0</span>, high = x;<br/>
-                              <br/>
-                              &nbsp;&nbsp;<span className="text-purple-400">while</span> (low &lt;= high) {'{'}<br/>
-                              &nbsp;&nbsp;&nbsp;&nbsp;<span className="text-purple-400">let</span> partitionX = <span className="text-blue-300">Math</span>.floor((low + high) / <span className="text-orange-400">2</span>);<br/>
-                              <div className="absolute w-[2px] h-3.5 bg-indigo-400 animate-pulse ml-[260px] mt-1 shadow-[0_0_8px_rgba(79,70,229,0.8)]" />
-                            </div>
-                          </div>
+                {/* Right Panel - Video/Analytics */}
+                <div className="w-full md:w-80 bg-slate-950 flex flex-col">
+                  {/* Fake Webcam */}
+                  <div className="p-4 border-b border-white/5 relative aspect-video bg-slate-900 flex items-center justify-center overflow-hidden">
+                    <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.2)_0%,transparent_100%)]" />
+                    <Video className="w-8 h-8 text-white/20" />
+                    {/* UI Overlays on webcam */}
+                    <div className="absolute top-3 right-3 px-2 py-1 rounded bg-black/60 backdrop-blur-sm border border-white/10 flex items-center gap-1.5">
+                      <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                      <span className="text-[9px] font-bold text-white tracking-widest">REC</span>
+                    </div>
+                    <div className="absolute bottom-3 left-3 px-2 py-1 rounded bg-black/60 backdrop-blur-sm border border-white/10">
+                      <span className="text-[10px] text-white">Confidence: <span className="text-green-400">94%</span></span>
+                    </div>
+                  </div>
+
+                  {/* Live Metrics */}
+                  <div className="p-5 flex-1 overflow-y-auto">
+                    <h3 className="text-[11px] font-semibold text-white/40 uppercase tracking-wider mb-4">Real-Time Analysis</h3>
+                    
+                    <div className="space-y-4">
+                      <div>
+                        <div className="flex justify-between text-[11px] mb-1.5">
+                          <span className="text-white/60">Technical Accuracy</span>
+                          <span className="text-white font-medium">92%</span>
                         </div>
-
-                        {/* Webcam Panel */}
-                        <div className="w-[30%] border border-white/5 bg-[#0F172A] rounded-[18px] relative flex flex-col overflow-hidden shadow-sm">
-                          <div className="absolute top-2 right-2 z-10 flex gap-2">
-                            <div className="px-2 py-0.5 rounded-[10px] bg-black/60 border border-white/10 flex items-center gap-1.5 backdrop-blur-md shadow-sm">
-                              <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse shadow-[0_0_5px_rgba(239,68,68,0.8)]" />
-                              <span className="text-[9px] font-semibold text-white/90 tracking-widest">REC 14:02</span>
-                            </div>
-                          </div>
-                          {/* Fake Camera Feed */}
-                          <div className="flex-1 relative bg-[#020617] flex justify-center pt-8 overflow-hidden">
-                            <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A] via-transparent to-transparent opacity-80 z-0" />
-                            {/* Abstract user silhouette */}
-                            <div className="w-28 h-28 rounded-full bg-white/[0.03] border border-white/[0.08] blur-[1px]" />
-                            <div className="absolute bottom-[-10px] w-40 h-24 rounded-t-[3rem] bg-white/[0.03] border-t border-x border-white/[0.08] blur-[1px]" />
-                          </div>
-                          
-                          {/* Audio/Mic indicators */}
-                          <div className="h-9 border-t border-white/5 bg-white/[0.02] flex items-center justify-between px-3">
-                            <div className="flex gap-[2px] items-end h-3 opacity-80">
-                              {[30, 60, 40, 80, 50, 90, 40, 60, 30].map((h, i) => (
-                                <motion.div 
-                                  key={i} 
-                                  animate={{ height: [`${h}%`, '10%', `${h}%`] }} 
-                                  transition={{ repeat: Infinity, duration: 1.5, delay: i * 0.1 }}
-                                  className="w-[2px] bg-emerald-400 rounded-full" 
-                                />
-                              ))}
-                            </div>
-                            <div className="flex gap-2 text-white/40">
-                              <Mic className="w-3 h-3" />
-                              <Video className="w-3 h-3" />
-                            </div>
-                          </div>
+                        <div className="h-1.5 rounded-full bg-white/5 overflow-hidden">
+                          <motion.div initial={{ width: 0 }} whileInView={{ width: '92%' }} transition={{ duration: 1, delay: 0.2 }} className="h-full bg-indigo-500" />
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <div className="flex justify-between text-[11px] mb-1.5">
+                          <span className="text-white/60">Speaking Pace</span>
+                          <span className="text-white font-medium">Optimal</span>
+                        </div>
+                        <div className="flex gap-1 h-3">
+                          {[...Array(20)].map((_, i) => (
+                            <motion.div 
+                              key={i} 
+                              animate={{ height: ['40%', '100%', '40%'] }} 
+                              transition={{ repeat: Infinity, duration: 1.5, delay: i * 0.1 }}
+                              className={`flex-1 rounded-sm ${i > 5 && i < 15 ? 'bg-green-400' : 'bg-white/10'}`} 
+                            />
+                          ))}
                         </div>
                       </div>
 
-                      {/* Bottom Grid: AI Conversation + Evaluation */}
-                      <div className="flex-1 flex gap-2 overflow-hidden">
-                        
-                        {/* Conversation */}
-                        <div className="flex-1 border border-white/5 bg-[#0F172A] rounded-[18px] flex flex-col overflow-hidden shadow-sm">
-                          <div className="h-8 border-b border-white/5 bg-white/[0.02] flex items-center px-3">
-                            <div className="flex items-center gap-1.5">
-                              <div className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse" />
-                              <span className="text-[10px] font-medium text-white/60">Live Transcription</span>
-                            </div>
-                          </div>
-                          <div className="flex-1 p-4 overflow-y-auto flex flex-col gap-4 relative">
-                            {/* Gradient mask at top/bottom for scrolling effect */}
-                            <div className="absolute top-0 inset-x-0 h-4 bg-gradient-to-b from-[#0F172A] to-transparent pointer-events-none" />
-                            
-                            <div className="flex gap-3 max-w-[90%]">
-                              <div className="w-6 h-6 rounded-full bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center shrink-0 mt-0.5">
-                                <Brain className="w-3 h-3 text-indigo-400" />
-                              </div>
-                              <div className="bg-white/5 border border-white/10 rounded-[14px] rounded-tl-sm p-3 shadow-sm">
-                                <div className="flex items-center gap-2 mb-1.5">
-                                  <span className="text-[10px] font-semibold text-indigo-400">AI Interviewer</span>
-                                  <span className="text-[9px] text-white/30">14:01</span>
-                                </div>
-                                <p className="text-[11px] text-white/80 leading-[1.6]">Can you explain the difference between synchronous and asynchronous programming, and when you would prefer one over the other?</p>
-                              </div>
-                            </div>
-
-                            <div className="flex gap-3 max-w-[90%] self-end flex-row-reverse">
-                              <div className="w-6 h-6 rounded-full bg-white/10 border border-white/20 flex items-center justify-center shrink-0 mt-0.5">
-                                <span className="text-[9px] font-bold text-white">C</span>
-                              </div>
-                              <div className="bg-indigo-600/20 border border-indigo-500/20 rounded-[14px] rounded-tr-sm p-3 shadow-sm">
-                                <div className="flex items-center justify-end gap-2 mb-1.5">
-                                  <span className="text-[9px] text-white/30">14:02</span>
-                                  <span className="text-[10px] font-semibold text-white/70">Candidate</span>
-                                </div>
-                                <p className="text-[11px] text-white/80 leading-[1.6] text-right">Synchronous execution blocks the thread until the task completes. Asynchronous allows the thread to continue, which is ideal for I/O bound operations like network requests.</p>
-                              </div>
-                            </div>
-                            
-                            {/* Typing indicator */}
-                            <div className="flex gap-3 max-w-[90%]">
-                              <div className="w-6 h-6 rounded-full bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center shrink-0 mt-0.5">
-                                <Brain className="w-3 h-3 text-indigo-400" />
-                              </div>
-                              <div className="bg-white/5 border border-white/10 rounded-[14px] rounded-tl-sm px-3 py-2 flex items-center gap-1 shadow-sm">
-                                <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1, delay: 0 }} className="w-1 h-1 rounded-full bg-indigo-400" />
-                                <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1, delay: 0.2 }} className="w-1 h-1 rounded-full bg-indigo-400" />
-                                <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1, delay: 0.4 }} className="w-1 h-1 rounded-full bg-indigo-400" />
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Evaluation Insights */}
-                        <div className="w-[30%] border border-white/5 bg-[#0F172A] rounded-[18px] p-4 flex flex-col gap-4 shadow-sm relative overflow-hidden">
-                          <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 blur-2xl rounded-full" />
-                          <span className="text-[9px] font-bold tracking-widest text-white/40 uppercase">Live Evaluation</span>
-                          
-                          <div className="space-y-4">
-                            <div>
-                              <div className="flex justify-between text-[10px] mb-1.5">
-                                <span className="text-white/70">Problem Solving</span>
-                                <span className="text-white font-medium">94/100</span>
-                              </div>
-                              <div className="h-1 bg-white/10 rounded-full overflow-hidden shadow-[inset_0_1px_1px_rgba(0,0,0,0.2)]">
-                                <motion.div initial={{ width: 0 }} animate={{ width: '94%' }} transition={{ duration: 1 }} className="h-full bg-indigo-500 shadow-[0_0_10px_rgba(79,70,229,0.8)]" />
-                              </div>
-                            </div>
-                            <div>
-                              <div className="flex justify-between text-[10px] mb-1.5">
-                                <span className="text-white/70">Code Quality</span>
-                                <span className="text-white font-medium">88/100</span>
-                              </div>
-                              <div className="h-1 bg-white/10 rounded-full overflow-hidden shadow-[inset_0_1px_1px_rgba(0,0,0,0.2)]">
-                                <motion.div initial={{ width: 0 }} animate={{ width: '88%' }} transition={{ duration: 1, delay: 0.1 }} className="h-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.8)]" />
-                              </div>
-                            </div>
-                            <div>
-                              <div className="flex justify-between text-[10px] mb-1.5">
-                                <span className="text-white/70">Communication</span>
-                                <span className="text-white font-medium">91/100</span>
-                              </div>
-                              <div className="h-1 bg-white/10 rounded-full overflow-hidden shadow-[inset_0_1px_1px_rgba(0,0,0,0.2)]">
-                                <motion.div initial={{ width: 0 }} animate={{ width: '91%' }} transition={{ duration: 1, delay: 0.2 }} className="h-full bg-indigo-400 shadow-[0_0_10px_rgba(129,140,248,0.8)]" />
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="mt-auto rounded-[14px] bg-indigo-500/10 border border-indigo-500/20 p-3 flex items-start gap-2 shadow-sm">
-                            <Activity className="w-3 h-3 text-indigo-400 shrink-0 mt-0.5" />
-                            <p className="text-[10px] text-white/70 leading-[1.5]">
-                              Strong algorithmic foundation detected. Recommend testing edge cases in next follow-up.
-                            </p>
-                          </div>
-                        </div>
-
+                      <div className="mt-6 pt-4 border-t border-white/5">
+                        <h3 className="text-[11px] font-semibold text-white/40 uppercase tracking-wider mb-3">Live Transcript</h3>
+                        <p className="text-xs text-white/60 leading-relaxed">
+                          "I used a queue because it guarantees that we visit all nodes at depth <span className="bg-white/10 text-white px-1 rounded">d</span> before moving to..."
+                        </p>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </motion.div>
-          </div>
+            </div>
+          </motion.div>
         </section>
 
-        {/* --- METRICS SECTION --- */}
-        <section className="mt-16 border-y border-white/5 bg-[#020617]/50 backdrop-blur-md">
-          <div className="max-w-[1440px] mx-auto px-6 lg:px-12 py-10 grid grid-cols-2 md:grid-cols-4 gap-4 divide-x divide-white/5">
-            {[
-              { stat: '50K+', label: 'Interviews Conducted' },
-              { stat: '92%', label: 'Confidence Improvement' },
-              { stat: 'GPT-4o', label: 'Core AI Infrastructure' },
-              { stat: '99.9%', label: 'Enterprise Uptime' }
-            ].map((metric, i) => (
-              <div key={i} className="flex flex-col items-center justify-center px-4 py-2 hover:bg-white/[0.02] transition-colors rounded-lg cursor-default">
-                <span className="text-[28px] font-bold text-white mb-1.5 tracking-tight">{metric.stat}</span>
-                <span className="text-[11px] text-white/50 font-medium tracking-wide uppercase">{metric.label}</span>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* --- BOTTOM SECURITY BAR & FADE --- */}
-        <section className="relative">
-          <div className="py-8 max-w-[1440px] mx-auto px-6 lg:px-12 flex flex-wrap justify-center md:justify-start gap-8 opacity-60">
-            <div className="flex items-center gap-2 text-[11px] font-medium text-white/50">
-              <Shield className="w-3.5 h-3.5" /> 256-bit Encrypted Sessions
+        {/* --- SOCIAL PROOF --- */}
+        <section className="pt-32 pb-20 px-6 border-b border-white/5">
+          <div className="max-w-6xl mx-auto">
+            <p className="text-center text-[13px] font-medium text-white/40 uppercase tracking-widest mb-10">
+              Trusted by candidates landing offers at
+            </p>
+            <div className="flex flex-wrap justify-center items-center gap-x-16 gap-y-8 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
+              {['Google', 'Meta', 'Amazon', 'Microsoft', 'Netflix', 'Stripe'].map(company => (
+                <span key={company} className="text-xl md:text-2xl font-bold tracking-tight text-white">{company}</span>
+              ))}
             </div>
-            <div className="flex items-center gap-2 text-[11px] font-medium text-white/50">
-              <CheckCircle2 className="w-3.5 h-3.5" /> SOC 2 Compliant
-            </div>
-            <div className="flex items-center gap-2 text-[11px] font-medium text-white/50">
-              <Lock className="w-3.5 h-3.5" /> Enterprise Grade Security
+            
+            <div className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-8 border-t border-white/5 pt-12">
+              {[
+                { label: 'Interviews Completed', value: '500k+' },
+                { label: 'Offer Rate', value: '89%' },
+                { label: 'Confidence Boost', value: '3x' },
+                { label: 'Average Rating', value: '4.9/5' }
+              ].map(stat => (
+                <div key={stat.label} className="text-center">
+                  <div className="text-3xl font-bold text-white mb-2">{stat.value}</div>
+                  <div className="text-[12px] text-white/40 font-medium">{stat.label}</div>
+                </div>
+              ))}
             </div>
           </div>
-          
-          {/* Subtle bottom fade transition */}
-          <div className="absolute bottom-0 inset-x-0 h-32 bg-gradient-to-t from-slate-950 to-transparent pointer-events-none" />
         </section>
 
         {/* --- FEATURES SECTION --- */}
@@ -505,58 +469,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* --- PRICING --- */}
-        <section id="pricing" className="py-32 px-6 bg-slate-950 border-t border-white/5 relative overflow-hidden">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-[400px] bg-indigo-500/10 blur-[120px] rounded-full pointer-events-none" />
-          
-          <div className="max-w-5xl mx-auto relative z-10">
-            <div className="text-center mb-20">
-              <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-white mb-6">Simple, transparent pricing</h2>
-              <p className="text-white/50 text-lg">Start for free. Upgrade when you're ready to master your interviews.</p>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-              {/* Free Plan */}
-              <div className="p-8 rounded-3xl bg-white/[0.02] border border-white/[0.05] flex flex-col">
-                <h3 className="text-xl font-semibold text-white mb-2">Basic</h3>
-                <p className="text-[13px] text-white/50 mb-6">Perfect for testing the waters.</p>
-                <div className="mb-8"><span className="text-5xl font-bold text-white">$0</span><span className="text-white/40 text-sm">/mo</span></div>
-                
-                <div className="flex-1 space-y-4 mb-8">
-                  {['5 AI Interviews per month', 'Standard Voice Analysis', 'Basic Code Execution', 'Core Domains (DSA, Frontend)'].map((f, i) => (
-                    <div key={i} className="flex items-center gap-3 text-[14px] text-white/70">
-                      <CheckCircle2 className="w-4 h-4 text-white/20" /> {f}
-                    </div>
-                  ))}
-                </div>
-                
-                <Link href="/auth/register" className="w-full py-4 rounded-xl font-semibold text-center text-white bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
-                  Get Started Free
-                </Link>
-              </div>
-
-              {/* Pro Plan */}
-              <div className="p-8 rounded-3xl bg-indigo-600/10 border border-indigo-500/30 flex flex-col relative overflow-hidden">
-                <div className="absolute top-0 right-0 bg-indigo-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg uppercase tracking-wider">Most Popular</div>
-                <h3 className="text-xl font-semibold text-white mb-2">Pro</h3>
-                <p className="text-[13px] text-white/50 mb-6">For serious candidates aiming for top-tier offers.</p>
-                <div className="mb-8"><span className="text-5xl font-bold text-white">$15</span><span className="text-white/40 text-sm">/mo</span></div>
-                
-                <div className="flex-1 space-y-4 mb-8">
-                  {['Unlimited AI Interviews', 'Advanced Behavioral Analysis', 'Company-Specific Modes (FAANG)', 'Full System Design Interviews', 'Priority AI Models (GPT-4o)'].map((f, i) => (
-                    <div key={i} className="flex items-center gap-3 text-[14px] text-white/90">
-                      <CheckCircle2 className="w-4 h-4 text-indigo-400" /> {f}
-                    </div>
-                  ))}
-                </div>
-                
-                <Link href="/auth/register" className="w-full py-4 rounded-xl font-semibold text-center text-white bg-indigo-600 hover:bg-indigo-500 transition-colors shadow-[0_0_20px_rgba(79,70,229,0.4)]">
-                  Upgrade to Pro
-                </Link>
-              </div>
-            </div>
-          </div>
-        </section>
+        
 
         {/* --- FAQ --- */}
         <section className="py-32 px-6">
