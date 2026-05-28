@@ -132,7 +132,7 @@ src/
 ### Prerequisites
 
 - Node.js `≥ 20`
-- npm or yarn
+- npm or yarn.
 - PostgreSQL database (local via Docker or [Neon](https://neon.tech))
 - Redis instance (local via Docker or [Upstash](https://upstash.com))
 - OpenAI API key
